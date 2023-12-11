@@ -149,7 +149,7 @@ namespace GestionProyectos.Server.Controllers
 
             try
             {
-                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.Id == idUsuario);
+                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.IdUsuario == idUsuario);
 
                 if (dbUsuario != null)
                 {
