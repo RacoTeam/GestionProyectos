@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GestionProyectos.Shared.Models
 {
-    class ResponseAPI<T>
+    public class ResponseAPI<T>
     {
         public bool esCorrecto { get; set; }
         public T Valor { get; set; }

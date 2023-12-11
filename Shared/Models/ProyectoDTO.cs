@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GestionProyectos.Shared.Models
 {
-    class ProyectoDTO
+    public class ProyectoDTO
     {
         public int IdProyecto { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GestionProyectos.Shared.Models
 {
-    class RolDTO
+    public class RolDTO
     {
         public int IdRol { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
