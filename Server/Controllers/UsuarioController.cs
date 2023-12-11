@@ -25,13 +25,12 @@ namespace GestionProyectos.Server.Controllers
 
         [HttpGet]
         [Route("Lista")]
-        public async Task <IActionResult> Lista()
+        public async Task<IActionResult> Lista()
         {
             //var responseApi = new ResponseAPI<List<UsuarioDTO>>();
             //var listaUsuarios = new List<UsuarioDTO>();    
 
-            
-        }
 
+        }
     }
 }
