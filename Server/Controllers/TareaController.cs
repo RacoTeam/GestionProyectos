@@ -9,17 +9,14 @@ using System.Diagnostics;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace GestionProyectos.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class TareaController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
-
-
-        public UsuarioController(GestionDeProyectosAdmContext dbcontext)
+        public TareaController(GestionDeProyectosAdmContext dbcontext)
         {
             _dbContext = dbcontext;
         }
@@ -28,27 +25,27 @@ namespace GestionProyectos.Server.Controllers
         [Route("Lista")]
         public async Task<IActionResult> Lista()
         {
-            var responseApi = new ResponseAPI<List<UsuarioDTO>>();
-            var listaUsuariosDTO = new List<UsuarioDTO>(); 
+            var responseApi = new ResponseAPI<List<TareaDTO>>();
+            var listaTareasDTO = new List<TareaDTO>();
             try
             {
-                foreach (var item in await _dbContext.Usuarios.Include(d => d.IdUsuario).ToListAsync())
+                foreach (var item in await _dbContext.Tareas.Include(d => d.IdTarea).ToListAsync())
                 {
-                    listaUsuariosDTO.Add(new UsuarioDTO
+                    listaTareasDTO.Add(new TareaDTO
                     {
-                        IdUsuario = item.IdUsuario,
-                        Usuario1 = item.Usuario1,
-                        Clave = item.Clave,
+                        IdTarea = item.IdTarea,
                         Nombre = item.Nombre,
-                        Apellido = item.Apellido,
-                        Dni = item.Dni,
-                        IdRol = item.IdRol,
+                        Descripcion = item.Descripcion,
+                        FechaInicio = item.FechaInicio,
+                        FechaFin = item.FechaFin,
+                        Avance = item.Avance,
+                        IdProyecto = item.IdProyecto,
                         //TODO
                     });
                 }
 
                 responseApi.EsCorrecto = true;
-                responseApi.Valor = listaUsuariosDTO;
+                responseApi.Valor = listaTareasDTO;
             }
             catch (Exception ex)
             {
@@ -59,31 +56,32 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+
+
         [HttpGet]
-        [Route("{idUsuario}")]
-        public async Task<ActionResult> ObtenerUsuario(int idUsuario)
+        [Route("{idTarea}")]
+        public async Task<ActionResult> ObtenerTarea(int idTarea)
         {
-            var responseApi = new ResponseAPI<UsuarioDTO>();
-            var UsuarioDTO = new UsuarioDTO();
+            var responseApi = new ResponseAPI<TareaDTO>();
+            var TareaDTO = new TareaDTO();
 
             try
             {
-                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.IdUsuario == idUsuario);
+                var dbTarea = await _dbContext.Tareas.FirstOrDefaultAsync(f => f.IdTarea == idTarea);
 
-                if (dbUsuario != null)
+                if (dbTarea != null)
                 {
-                    UsuarioDTO.IdUsuario = idUsuario;
-
-                    UsuarioDTO.Usuario1 = dbUsuario.Usuario1;
-                    UsuarioDTO.Clave = dbUsuario.Clave;
-                    UsuarioDTO.Nombre = dbUsuario.Nombre;
-                    UsuarioDTO.Apellido = dbUsuario.Apellido;
-                    UsuarioDTO.Dni = dbUsuario.Dni;
-                    UsuarioDTO.IdRol = dbUsuario.IdRol;
+                    TareaDTO.IdTarea = idTarea;
+                    TareaDTO.Nombre = dbTarea.Nombre;
+                    TareaDTO.Descripcion = dbTarea.Descripcion;
+                    TareaDTO.FechaInicio = dbTarea.FechaInicio;
+                    TareaDTO.FechaFin = dbTarea.FechaFin;
+                    TareaDTO.Avance = dbTarea.Avance;
+                    TareaDTO.IdProyecto = dbTarea.IdProyecto;
                     //TODO
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = UsuarioDTO;
+                    responseApi.Valor = TareaDTO;
                 }
                 else
                 {
@@ -101,30 +99,31 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+
         [HttpPost]
-        public async Task<ActionResult> AgregarUsuario(UsuarioDTO Usuario)
+        public async Task<ActionResult> AgregarTarea(TareaDTO Tarea)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbUsuario = new Usuario
+                var dbTarea = new Tarea
                 {
-                    Usuario1 = Usuario.Usuario1,
-                    Clave = Usuario.Clave,
-                    Nombre = Usuario.Nombre,
-                    Apellido = Usuario.Apellido,
-                    Dni = Usuario.Dni,
-                    IdRol = Usuario.IdRol,
+                    Nombre = Tarea.Nombre,
+                    Descripcion = Tarea.Descripcion,
+                    FechaInicio = Tarea.FechaInicio,
+                    FechaFin = Tarea.FechaFin,
+                    Avance = Tarea.Avance,
+                    IdProyecto = Tarea.IdProyecto,
                     //TODO
                 };
 
-                _dbContext.Usuarios.Add(dbUsuario);
+                _dbContext.Tareas.Add(dbTarea);
                 await _dbContext.SaveChangesAsync();
 
-                if (dbUsuario.IdUsuario != 0)
+                if (dbTarea.IdTarea != 0)
                 {
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = dbUsuario.IdUsuario;
+                    responseApi.Valor = dbTarea.IdTarea;
                 }
                 else
                 {
@@ -142,18 +141,18 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpDelete]
-        [Route("{idUsuario}")]
-        public async Task<IActionResult> EliminarUsuario(int idUsuario)
+        [Route("{idTarea}")]
+        public async Task<IActionResult> EliminarTarea(int idTarea)
         {
             var responseApi = new ResponseAPI<int>();
 
             try
             {
-                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.Id == idUsuario);
+                var dbTarea = await _dbContext.Tareas.FirstOrDefaultAsync(f => f.IdTarea == idTarea);
 
-                if (dbUsuario != null)
+                if (dbTarea != null)
                 {
-                    _dbContext.Usuarios.Remove(dbUsuario);
+                    _dbContext.Tareas.Remove(dbTarea);
                     await _dbContext.SaveChangesAsync();
 
 
@@ -162,7 +161,7 @@ namespace GestionProyectos.Server.Controllers
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "Usuario no encontrada";
+                    responseApi.Mensaje = "Tarea no encontrada";
                 }
 
             }
@@ -175,6 +174,5 @@ namespace GestionProyectos.Server.Controllers
 
             return Ok(responseApi);
         }
-
     }
 }

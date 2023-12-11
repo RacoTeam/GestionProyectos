@@ -9,17 +9,16 @@ using System.Diagnostics;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace GestionProyectos.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class RolController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
 
 
-        public UsuarioController(GestionDeProyectosAdmContext dbcontext)
+        public RolController(GestionDeProyectosAdmContext dbcontext)
         {
             _dbContext = dbcontext;
         }
@@ -28,27 +27,22 @@ namespace GestionProyectos.Server.Controllers
         [Route("Lista")]
         public async Task<IActionResult> Lista()
         {
-            var responseApi = new ResponseAPI<List<UsuarioDTO>>();
-            var listaUsuariosDTO = new List<UsuarioDTO>(); 
+            var responseApi = new ResponseAPI<List<RolDTO>>();
+            var listaRolsDTO = new List<RolDTO>();
             try
             {
-                foreach (var item in await _dbContext.Usuarios.Include(d => d.IdUsuario).ToListAsync())
+                foreach (var item in await _dbContext.Rols.Include(d => d.IdRol).ToListAsync())
                 {
-                    listaUsuariosDTO.Add(new UsuarioDTO
+                    listaRolsDTO.Add(new RolDTO
                     {
-                        IdUsuario = item.IdUsuario,
-                        Usuario1 = item.Usuario1,
-                        Clave = item.Clave,
-                        Nombre = item.Nombre,
-                        Apellido = item.Apellido,
-                        Dni = item.Dni,
                         IdRol = item.IdRol,
+                        Nombre = item.Nombre,
                         //TODO
                     });
                 }
 
                 responseApi.EsCorrecto = true;
-                responseApi.Valor = listaUsuariosDTO;
+                responseApi.Valor = listaRolsDTO;
             }
             catch (Exception ex)
             {
@@ -60,30 +54,24 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpGet]
-        [Route("{idUsuario}")]
-        public async Task<ActionResult> ObtenerUsuario(int idUsuario)
+        [Route("{idRol}")]
+        public async Task<ActionResult> ObtenerRol(int idRol)
         {
-            var responseApi = new ResponseAPI<UsuarioDTO>();
-            var UsuarioDTO = new UsuarioDTO();
+            var responseApi = new ResponseAPI<RolDTO>();
+            var RolDTO = new RolDTO();
 
             try
             {
-                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.IdUsuario == idUsuario);
+                var dbRol = await _dbContext.Rols.FirstOrDefaultAsync(f => f.IdRol == idRol);
 
-                if (dbUsuario != null)
+                if (dbRol != null)
                 {
-                    UsuarioDTO.IdUsuario = idUsuario;
-
-                    UsuarioDTO.Usuario1 = dbUsuario.Usuario1;
-                    UsuarioDTO.Clave = dbUsuario.Clave;
-                    UsuarioDTO.Nombre = dbUsuario.Nombre;
-                    UsuarioDTO.Apellido = dbUsuario.Apellido;
-                    UsuarioDTO.Dni = dbUsuario.Dni;
-                    UsuarioDTO.IdRol = dbUsuario.IdRol;
+                    RolDTO.IdRol = idRol;
+                    RolDTO.Nombre = dbRol.Nombre;
                     //TODO
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = UsuarioDTO;
+                    responseApi.Valor = RolDTO;
                 }
                 else
                 {
@@ -102,29 +90,24 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AgregarUsuario(UsuarioDTO Usuario)
+        public async Task<ActionResult> AgregarRol(RolDTO Rol)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbUsuario = new Usuario
+                var dbRol = new Rol
                 {
-                    Usuario1 = Usuario.Usuario1,
-                    Clave = Usuario.Clave,
-                    Nombre = Usuario.Nombre,
-                    Apellido = Usuario.Apellido,
-                    Dni = Usuario.Dni,
-                    IdRol = Usuario.IdRol,
+                    Nombre = Rol.Nombre,
                     //TODO
                 };
 
-                _dbContext.Usuarios.Add(dbUsuario);
+                _dbContext.Rols.Add(dbRol);
                 await _dbContext.SaveChangesAsync();
 
-                if (dbUsuario.IdUsuario != 0)
+                if (dbRol.IdRol != 0)
                 {
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = dbUsuario.IdUsuario;
+                    responseApi.Valor = dbRol.IdRol;
                 }
                 else
                 {
@@ -141,19 +124,20 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+
         [HttpDelete]
-        [Route("{idUsuario}")]
-        public async Task<IActionResult> EliminarUsuario(int idUsuario)
+        [Route("{idRol}")]
+        public async Task<IActionResult> EliminarRol(int idRol)
         {
             var responseApi = new ResponseAPI<int>();
 
             try
             {
-                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.Id == idUsuario);
+                var dbRol = await _dbContext.Rols.FirstOrDefaultAsync(f => f.IdRol == idRol);
 
-                if (dbUsuario != null)
+                if (dbRol != null)
                 {
-                    _dbContext.Usuarios.Remove(dbUsuario);
+                    _dbContext.Rols.Remove(dbRol);
                     await _dbContext.SaveChangesAsync();
 
 
@@ -162,7 +146,7 @@ namespace GestionProyectos.Server.Controllers
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "Usuario no encontrada";
+                    responseApi.Mensaje = "Rol no encontrada";
                 }
 
             }
@@ -175,6 +159,5 @@ namespace GestionProyectos.Server.Controllers
 
             return Ok(responseApi);
         }
-
     }
 }

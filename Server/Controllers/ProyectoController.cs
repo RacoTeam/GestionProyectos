@@ -14,12 +14,12 @@ namespace GestionProyectos.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class ProyectoController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
 
 
-        public UsuarioController(GestionDeProyectosAdmContext dbcontext)
+        public ProyectoController(GestionDeProyectosAdmContext dbcontext)
         {
             _dbContext = dbcontext;
         }
@@ -28,27 +28,26 @@ namespace GestionProyectos.Server.Controllers
         [Route("Lista")]
         public async Task<IActionResult> Lista()
         {
-            var responseApi = new ResponseAPI<List<UsuarioDTO>>();
-            var listaUsuariosDTO = new List<UsuarioDTO>(); 
+            var responseApi = new ResponseAPI<List<ProyectoDTO>>();
+            var listaProyectosDTO = new List<ProyectoDTO>();
             try
             {
-                foreach (var item in await _dbContext.Usuarios.Include(d => d.IdUsuario).ToListAsync())
+                foreach (var item in await _dbContext.Proyectos.Include(d => d.IdProyecto).ToListAsync())
                 {
-                    listaUsuariosDTO.Add(new UsuarioDTO
+                    listaProyectosDTO.Add(new ProyectoDTO
                     {
-                        IdUsuario = item.IdUsuario,
-                        Usuario1 = item.Usuario1,
-                        Clave = item.Clave,
+                        IdProyecto = item.IdProyecto,
                         Nombre = item.Nombre,
-                        Apellido = item.Apellido,
-                        Dni = item.Dni,
-                        IdRol = item.IdRol,
+                        Descripcion = item.Descripcion,
+                        FechaInicio = item.FechaInicio,
+                        FechaFin = item.FechaFin,
+                        IdCliente = item.IdCliente,
                         //TODO
                     });
                 }
 
                 responseApi.EsCorrecto = true;
-                responseApi.Valor = listaUsuariosDTO;
+                responseApi.Valor = listaProyectosDTO;
             }
             catch (Exception ex)
             {
@@ -59,31 +58,31 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+
         [HttpGet]
-        [Route("{idUsuario}")]
-        public async Task<ActionResult> ObtenerUsuario(int idUsuario)
+        [Route("{idProyecto}")]
+        public async Task<ActionResult> ObtenerProyecto(int idProyecto)
         {
-            var responseApi = new ResponseAPI<UsuarioDTO>();
-            var UsuarioDTO = new UsuarioDTO();
+            var responseApi = new ResponseAPI<ProyectoDTO>();
+            var ProyectoDTO = new ProyectoDTO();
 
             try
             {
-                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.IdUsuario == idUsuario);
+                var dbProyecto = await _dbContext.Proyectos.FirstOrDefaultAsync(f => f.IdProyecto == idProyecto);
 
-                if (dbUsuario != null)
+                if (dbProyecto != null)
                 {
-                    UsuarioDTO.IdUsuario = idUsuario;
+                    ProyectoDTO.IdProyecto = idProyecto;
+                    ProyectoDTO.Nombre = dbProyecto.Nombre;
+                    ProyectoDTO.Descripcion = dbProyecto.Descripcion;
 
-                    UsuarioDTO.Usuario1 = dbUsuario.Usuario1;
-                    UsuarioDTO.Clave = dbUsuario.Clave;
-                    UsuarioDTO.Nombre = dbUsuario.Nombre;
-                    UsuarioDTO.Apellido = dbUsuario.Apellido;
-                    UsuarioDTO.Dni = dbUsuario.Dni;
-                    UsuarioDTO.IdRol = dbUsuario.IdRol;
+                    ProyectoDTO.FechaInicio = dbProyecto.FechaInicio;
+                    ProyectoDTO.FechaFin = dbProyecto.FechaFin;
+                    ProyectoDTO.IdCliente = dbProyecto.IdCliente;
                     //TODO
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = UsuarioDTO;
+                    responseApi.Valor = ProyectoDTO;
                 }
                 else
                 {
@@ -102,29 +101,28 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AgregarUsuario(UsuarioDTO Usuario)
+        public async Task<ActionResult> AgregarProyecto(ProyectoDTO Proyecto)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbUsuario = new Usuario
+                var dbProyecto = new Proyecto
                 {
-                    Usuario1 = Usuario.Usuario1,
-                    Clave = Usuario.Clave,
-                    Nombre = Usuario.Nombre,
-                    Apellido = Usuario.Apellido,
-                    Dni = Usuario.Dni,
-                    IdRol = Usuario.IdRol,
+                    Descripcion = Proyecto.Descripcion,
+                    Nombre = Proyecto.Nombre,
+                    FechaInicio = Proyecto.FechaInicio,
+                    FechaFin = Proyecto.FechaFin,
+                    IdCliente = Proyecto.IdCliente,
                     //TODO
                 };
 
-                _dbContext.Usuarios.Add(dbUsuario);
+                _dbContext.Proyectos.Add(dbProyecto);
                 await _dbContext.SaveChangesAsync();
 
-                if (dbUsuario.IdUsuario != 0)
+                if (dbProyecto.IdProyecto != 0)
                 {
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = dbUsuario.IdUsuario;
+                    responseApi.Valor = dbProyecto.IdProyecto;
                 }
                 else
                 {
@@ -142,18 +140,18 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpDelete]
-        [Route("{idUsuario}")]
-        public async Task<IActionResult> EliminarUsuario(int idUsuario)
+        [Route("{idProyecto}")]
+        public async Task<IActionResult> EliminarProyecto(int idProyecto)
         {
             var responseApi = new ResponseAPI<int>();
 
             try
             {
-                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.Id == idUsuario);
+                var dbProyecto = await _dbContext.Proyectos.FirstOrDefaultAsync(f => f.IdProyecto == idProyecto);
 
-                if (dbUsuario != null)
+                if (dbProyecto != null)
                 {
-                    _dbContext.Usuarios.Remove(dbUsuario);
+                    _dbContext.Proyectos.Remove(dbProyecto);
                     await _dbContext.SaveChangesAsync();
 
 
@@ -162,7 +160,7 @@ namespace GestionProyectos.Server.Controllers
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "Usuario no encontrada";
+                    responseApi.Mensaje = "Proyecto no encontrada";
                 }
 
             }
