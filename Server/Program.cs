@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using GestionProyectos.Server.Data;
+using GestionProyectos.Server.Models;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddDbContext<GestionDeProyectosAdmContext>(opciones =>
+{
+    opciones.UseSqlServer(builder.Configuration.GetConnectionString("cadenaSQL"));
+});
+
 
 var app = builder.Build();
 

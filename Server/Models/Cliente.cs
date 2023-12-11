@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using GestionProyectos.Server.Models;
 
-namespace GestionProyectos.Server;
+namespace GestionProyectos.Server.Models;
 
 public partial class Cliente
 {

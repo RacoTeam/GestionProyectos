@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GestionProyectos.Server;
+namespace GestionProyectos.Server.Models;
 
 public partial class Grupo
 {
