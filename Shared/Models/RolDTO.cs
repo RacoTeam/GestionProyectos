@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GestionProyectos.Shared
+namespace GestionProyectos.Shared.Models
 {
     class RolDTO
     {

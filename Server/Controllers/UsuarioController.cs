@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
+
 using GestionProyectos.Server.Models;
 using GestionProyectos.Server.Data;
-using GestionProyectos.Shared;
-using Microsoft.EntityFrameworkCore;
+using GestionProyectos.Shared.Models;
+
+//using Microsoft.EntityFrameworkCore;
 
 
 namespace GestionProyectos.Server.Controllers
@@ -21,6 +23,15 @@ namespace GestionProyectos.Server.Controllers
             _dbContext = dbcontext;
         }
 
+        [HttpGet]
+        [Route("Lista")]
+        public async Task <IActionResult> Lista()
+        {
+            //var responseApi = new ResponseAPI<List<UsuarioDTO>>();
+            //var listaUsuarios = new List<UsuarioDTO>();    
+
+            
+        }
 
     }
 }

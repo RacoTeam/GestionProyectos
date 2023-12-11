@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GestionProyectos.Shared
+namespace GestionProyectos.Shared.Models
 {
     class RecursoDTO
     {

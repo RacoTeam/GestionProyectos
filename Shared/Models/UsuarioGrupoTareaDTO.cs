@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace GestionProyectos.Shared
+namespace GestionProyectos.Shared.Models
 {
-    class UsuarioGrupoDTO
+    class UsuarioGrupoTareaDTO
     {
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int IdUsuario { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int IdGrupo { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        public int IdProyecto { get; set; }
+        public int IdTarea { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        public virtual GrupoDTO Id { get; set; } = null!;
+        public int IdProyecto { get; set; }
 
-        public virtual UsuarioDTO IdUsuarioNavigation { get; set; } = null!;
+        public virtual TareaDTO Id { get; set; } = null!;
 
-        public virtual ICollection<UsuarioGrupoTareaDTO> UsuarioGrupoTareas { get; set; } = new List<UsuarioGrupoTareaDTO>();
+        public virtual UsuarioGrupoDTO IdNavigation { get; set; } = null!;
     }
 }
