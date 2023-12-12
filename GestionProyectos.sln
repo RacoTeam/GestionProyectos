@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionProyectos.Server", "Server\GestionProyectos.Server.csproj", "{1CB5A12C-9BE1-440A-ADD7-793DD7961199}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionProyectos.Server", "Server\GestionProyectos.Server.csproj", "{1CB5A12C-9BE1-440A-ADD7-793DD7961199}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionProyectos.Client", "Client\GestionProyectos.Client.csproj", "{0AEB4C18-0A6C-42B9-A185-1F687656EE3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionProyectos.Client", "Client\GestionProyectos.Client.csproj", "{0AEB4C18-0A6C-42B9-A185-1F687656EE3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestionProyectos.Shared", "Shared\GestionProyectos.Shared.csproj", "{D39AA0F5-2750-446E-92D0-F4AECD698162}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestionProyectos.Shared", "Shared\GestionProyectos.Shared.csproj", "{D39AA0F5-2750-446E-92D0-F4AECD698162}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
