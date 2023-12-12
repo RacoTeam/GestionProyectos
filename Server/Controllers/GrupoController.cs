@@ -8,7 +8,7 @@ using GestionProyectos.Shared.Models;
 using System.Diagnostics;
 
 using Microsoft.EntityFrameworkCore;
-
+using AutoMapper;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -18,30 +18,31 @@ namespace GestionProyectos.Server.Controllers
     public class GrupoController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
+        private readonly IMapper _mapper;
 
-
-        public GrupoController(GestionDeProyectosAdmContext dbcontext)
+        public GrupoController(GestionDeProyectosAdmContext dbcontext, IMapper mapper)
         {
             _dbContext = dbcontext;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Route("Lista")]
-        public async Task<IActionResult> Lista()
+        public async Task<IActionResult> ListarGrupos()
         {
             var responseApi = new ResponseAPI<List<GrupoDTO>>();
             var listaGruposDTO = new List<GrupoDTO>();
             try
             {
-                foreach (var item in await _dbContext.Grupos.Include(d => d.IdGrupo).ToListAsync())
+                var gruposDb = await _dbContext.Grupos.ToListAsync();
+                foreach (var grupo in gruposDb)
                 {
-                    listaGruposDTO.Add(new GrupoDTO
-                    {
-                        IdGrupo = item.IdGrupo,
-                        IdProyecto = item.IdProyecto,
-                        Nombre = item.Nombre,
-                        //TODO
-                    });
+                    grupo.IdProyectoNavigation = await _dbContext.Proyectos.FirstOrDefaultAsync(g => g.IdProyecto == grupo.IdProyecto);
+
+                    grupo.IdProyectoNavigation.Grupos = null;
+
+                    listaGruposDTO.Add(_mapper.Map<GrupoDTO>(grupo));
+
                 }
 
                 responseApi.EsCorrecto = true;
@@ -65,14 +66,16 @@ namespace GestionProyectos.Server.Controllers
 
             try
             {
-                var dbGrupo = await _dbContext.Grupos.FirstOrDefaultAsync(f => f.IdGrupo == idGrupo);
-
+                var dbGrupo = await _dbContext.Grupos.FirstOrDefaultAsync(g => g.IdGrupo == idGrupo);
                 if (dbGrupo != null)
                 {
-                    GrupoDTO.IdGrupo = idGrupo;
-                    GrupoDTO.IdProyecto = dbGrupo.IdProyecto;
-                    GrupoDTO.Nombre = dbGrupo.Nombre;
-                    //TODO
+
+                    dbGrupo.IdProyectoNavigation = await _dbContext.Proyectos.FirstOrDefaultAsync(p => p.IdProyecto == dbGrupo.IdProyecto);
+
+                    dbGrupo.IdProyectoNavigation.Grupos = null;
+
+                    GrupoDTO = _mapper.Map<GrupoDTO>(dbGrupo);
+
 
                     responseApi.EsCorrecto = true;
                     responseApi.Valor = GrupoDTO;

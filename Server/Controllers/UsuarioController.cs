@@ -26,6 +26,7 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpGet]
+        [Route("Lista")]
         public async Task<ActionResult> ListarUsuarios()
         {
             var responseApi = new ResponseAPI<List<UsuarioDTO>>();
