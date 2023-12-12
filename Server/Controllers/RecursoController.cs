@@ -8,6 +8,7 @@ using GestionProyectos.Shared.Models;
 using System.Diagnostics;
 
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -16,31 +17,30 @@ namespace GestionProyectos.Server.Controllers
     public class RecursoController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
+        private readonly IMapper _mapper;
 
-
-        public RecursoController(GestionDeProyectosAdmContext dbcontext)
+        public RecursoController(GestionDeProyectosAdmContext dbcontext, IMapper mapper)
         {
             _dbContext = dbcontext;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Route("Lista")]
-        public async Task<IActionResult> Lista()
+        public async Task<IActionResult> ListarRecursos()
         {
             var responseApi = new ResponseAPI<List<RecursoDTO>>();
             var listaRecursosDTO = new List<RecursoDTO>();
             try
             {
-                foreach (var item in await _dbContext.Recursos.Include(d => d.IdRecurso).ToListAsync())
+                var recursosDb = await _dbContext.Recursos.ToListAsync();
+                foreach (var recurso in recursosDb)
                 {
-                    listaRecursosDTO.Add(new RecursoDTO
-                    {
-                        IdRecurso = item.IdRecurso,
-                        Nombre = item.Nombre,
-                        CostoDia = item.CostoDia,
-                        Tipo = item.Tipo,
-                        IdTarea = item.IdTarea,
-                    });
+
+                    recurso.IdTareaNavigation = await _dbContext.Tareas.FirstOrDefaultAsync(t => t.IdTarea == recurso.IdTarea);
+                    recurso.IdTareaNavigation.Recursos = null;
+
+                    listaRecursosDTO.Add(_mapper.Map<RecursoDTO>(recurso));
                 }
 
                 responseApi.EsCorrecto = true;
@@ -69,11 +69,12 @@ namespace GestionProyectos.Server.Controllers
 
                 if (dbRecurso != null)
                 {
-                    RecursoDTO.IdRecurso = idRecurso;
-                    RecursoDTO.Nombre = dbRecurso.Nombre;
-                    RecursoDTO.CostoDia = dbRecurso.CostoDia;
-                    RecursoDTO.Tipo = dbRecurso.Tipo;
-                    RecursoDTO.IdTarea = dbRecurso.IdTarea;
+
+                    dbRecurso.IdTareaNavigation = await _dbContext.Tareas.FirstOrDefaultAsync(t => t.IdTarea == dbRecurso.IdTarea);
+                    dbRecurso.IdTareaNavigation.Recursos = null;
+
+
+                    RecursoDTO = _mapper.Map<RecursoDTO>(dbRecurso);
 
                     responseApi.EsCorrecto = true;
                     responseApi.Valor = RecursoDTO;
