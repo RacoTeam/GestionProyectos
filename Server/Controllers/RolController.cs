@@ -8,6 +8,7 @@ using GestionProyectos.Shared.Models;
 using System.Diagnostics;
 
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -16,29 +17,26 @@ namespace GestionProyectos.Server.Controllers
     public class RolController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
+        private readonly IMapper _mapper;
 
-
-        public RolController(GestionDeProyectosAdmContext dbcontext)
+        public RolController(GestionDeProyectosAdmContext dbcontext, IMapper mapper)
         {
             _dbContext = dbcontext;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Route("Lista")]
-        public async Task<IActionResult> Lista()
+        public async Task<IActionResult> ListarRols()
         {
             var responseApi = new ResponseAPI<List<RolDTO>>();
             var listaRolsDTO = new List<RolDTO>();
             try
             {
-                foreach (var item in await _dbContext.Rols.Include(d => d.IdRol).ToListAsync())
+                var rolDb = await _dbContext.Rols.ToListAsync();
+                foreach (var rol in rolDb)
                 {
-                    listaRolsDTO.Add(new RolDTO
-                    {
-                        IdRol = item.IdRol,
-                        Nombre = item.Nombre,
-                        //TODO
-                    });
+                    listaRolsDTO.Add(_mapper.Map<RolDTO>(rol));
                 }
 
                 responseApi.EsCorrecto = true;
@@ -66,9 +64,7 @@ namespace GestionProyectos.Server.Controllers
 
                 if (dbRol != null)
                 {
-                    RolDTO.IdRol = idRol;
-                    RolDTO.Nombre = dbRol.Nombre;
-                    //TODO
+                    RolDTO = _mapper.Map<RolDTO>(dbRol);
 
                     responseApi.EsCorrecto = true;
                     responseApi.Valor = RolDTO;

@@ -8,6 +8,7 @@ using GestionProyectos.Shared.Models;
 using System.Diagnostics;
 
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -16,32 +17,31 @@ namespace GestionProyectos.Server.Controllers
     public class TareaController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
-        public TareaController(GestionDeProyectosAdmContext dbcontext)
+        private readonly IMapper _mapper;
+
+        public TareaController(GestionDeProyectosAdmContext dbcontext, IMapper mapper)
         {
             _dbContext = dbcontext;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Route("Lista")]
-        public async Task<IActionResult> Lista()
+        public async Task<IActionResult> ListarTareas()
         {
             var responseApi = new ResponseAPI<List<TareaDTO>>();
             var listaTareasDTO = new List<TareaDTO>();
             try
             {
-                foreach (var item in await _dbContext.Tareas.Include(d => d.IdTarea).ToListAsync())
+                var tareasDb = await _dbContext.Tareas.ToListAsync();
+                foreach (var tarea in tareasDb)
                 {
-                    listaTareasDTO.Add(new TareaDTO
-                    {
-                        IdTarea = item.IdTarea,
-                        Nombre = item.Nombre,
-                        Descripcion = item.Descripcion,
-                        FechaInicio = item.FechaInicio,
-                        FechaFin = item.FechaFin,
-                        Avance = item.Avance,
-                        IdProyecto = item.IdProyecto,
-                        //TODO
-                    });
+                    tarea.IdProyectoNavigation = await _dbContext.Proyectos.FirstOrDefaultAsync(p => p.IdProyecto == tarea.IdProyecto);
+                    tarea.IdProyectoNavigation.IdClienteNavigation = null;
+                    tarea.IdProyectoNavigation.IdUsuarioNavigation = null;
+                    tarea.IdProyectoNavigation.Tareas = null;
+
+                    listaTareasDTO.Add(_mapper.Map<TareaDTO>(tarea));
                 }
 
                 responseApi.EsCorrecto = true;
@@ -63,7 +63,7 @@ namespace GestionProyectos.Server.Controllers
         public async Task<ActionResult> ObtenerTarea(int idTarea)
         {
             var responseApi = new ResponseAPI<TareaDTO>();
-            var TareaDTO = new TareaDTO();
+            var tareaDTO = new TareaDTO();
 
             try
             {
@@ -71,17 +71,17 @@ namespace GestionProyectos.Server.Controllers
 
                 if (dbTarea != null)
                 {
-                    TareaDTO.IdTarea = idTarea;
-                    TareaDTO.Nombre = dbTarea.Nombre;
-                    TareaDTO.Descripcion = dbTarea.Descripcion;
-                    TareaDTO.FechaInicio = dbTarea.FechaInicio;
-                    TareaDTO.FechaFin = dbTarea.FechaFin;
-                    TareaDTO.Avance = dbTarea.Avance;
-                    TareaDTO.IdProyecto = dbTarea.IdProyecto;
-                    //TODO
+
+                    dbTarea.IdProyectoNavigation = await _dbContext.Proyectos.FirstOrDefaultAsync(p => p.IdProyecto == dbTarea.IdProyecto);
+                    dbTarea.IdProyectoNavigation.IdClienteNavigation = null;
+                    dbTarea.IdProyectoNavigation.IdUsuarioNavigation = null;
+                    dbTarea.IdProyectoNavigation.Tareas = null;
+
+
+                    tareaDTO = _mapper.Map<TareaDTO>(dbTarea);
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = TareaDTO;
+                    responseApi.Valor = tareaDTO;
                 }
                 else
                 {
