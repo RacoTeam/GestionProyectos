@@ -8,7 +8,7 @@ using GestionProyectos.Shared.Models;
 using System.Diagnostics;
 
 using Microsoft.EntityFrameworkCore;
-
+using AutoMapper;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -17,33 +17,34 @@ namespace GestionProyectos.Server.Controllers
     public class ProyectoController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
+        private readonly IMapper _mapper;
 
 
-        public ProyectoController(GestionDeProyectosAdmContext dbcontext)
+        public ProyectoController(GestionDeProyectosAdmContext dbcontext, IMapper mapper)
         {
             _dbContext = dbcontext;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Route("Lista")]
-        public async Task<IActionResult> Lista()
+        public async Task<IActionResult> ListarProyectos()
         {
             var responseApi = new ResponseAPI<List<ProyectoDTO>>();
             var listaProyectosDTO = new List<ProyectoDTO>();
             try
             {
-                foreach (var item in await _dbContext.Proyectos.Include(d => d.IdProyecto).ToListAsync())
+                var proyectosDb = await _dbContext.Proyectos.ToListAsync();
+                foreach (var proyecto in proyectosDb)
                 {
-                    listaProyectosDTO.Add(new ProyectoDTO
-                    {
-                        IdProyecto = item.IdProyecto,
-                        Nombre = item.Nombre,
-                        Descripcion = item.Descripcion,
-                        FechaInicio = item.FechaInicio,
-                        FechaFin = item.FechaFin,
-                        IdCliente = item.IdCliente,
-                        //TODO
-                    });
+                    proyecto.IdClienteNavigation = _dbContext.Clientes.FirstOrDefault(c => c.IdCliente == proyecto.IdCliente);
+                    proyecto.IdClienteNavigation.Proyectos = null;
+
+                    proyecto.IdUsuarioNavigation = _dbContext.Usuarios.FirstOrDefault(u => u.IdUsuario == proyecto.IdUsuario);
+                    proyecto.IdUsuarioNavigation.Proyectos = null;
+
+
+                    listaProyectosDTO.Add(_mapper.Map<ProyectoDTO>(proyecto));
                 }
 
                 responseApi.EsCorrecto = true;
@@ -64,7 +65,7 @@ namespace GestionProyectos.Server.Controllers
         public async Task<ActionResult> ObtenerProyecto(int idProyecto)
         {
             var responseApi = new ResponseAPI<ProyectoDTO>();
-            var ProyectoDTO = new ProyectoDTO();
+            var proyectoDTO = new ProyectoDTO();
 
             try
             {
@@ -72,17 +73,16 @@ namespace GestionProyectos.Server.Controllers
 
                 if (dbProyecto != null)
                 {
-                    ProyectoDTO.IdProyecto = idProyecto;
-                    ProyectoDTO.Nombre = dbProyecto.Nombre;
-                    ProyectoDTO.Descripcion = dbProyecto.Descripcion;
+                    dbProyecto.IdClienteNavigation = _dbContext.Clientes.FirstOrDefault(c=>c.IdCliente == dbProyecto.IdCliente);
+                    dbProyecto.IdClienteNavigation.Proyectos = null;
 
-                    ProyectoDTO.FechaInicio = dbProyecto.FechaInicio;
-                    ProyectoDTO.FechaFin = dbProyecto.FechaFin;
-                    ProyectoDTO.IdCliente = dbProyecto.IdCliente;
-                    //TODO
+                    dbProyecto.IdUsuarioNavigation = _dbContext.Usuarios.FirstOrDefault(u => u.IdUsuario == dbProyecto.IdUsuario);
+                    dbProyecto.IdUsuarioNavigation.Proyectos = null;
+
+                    proyectoDTO = _mapper.Map<ProyectoDTO>(dbProyecto);
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = ProyectoDTO;
+                    responseApi.Valor = proyectoDTO;
                 }
                 else
                 {

@@ -62,7 +62,7 @@ namespace GestionProyectos.Server.Controllers
         public async Task<ActionResult> ObtenerGrupo(int idGrupo)
         {
             var responseApi = new ResponseAPI<GrupoDTO>();
-            var GrupoDTO = new GrupoDTO();
+            var grupoDTO = new GrupoDTO();
 
             try
             {
@@ -74,11 +74,11 @@ namespace GestionProyectos.Server.Controllers
 
                     dbGrupo.IdProyectoNavigation.Grupos = null;
 
-                    GrupoDTO = _mapper.Map<GrupoDTO>(dbGrupo);
+                    grupoDTO = _mapper.Map<GrupoDTO>(dbGrupo);
 
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = GrupoDTO;
+                    responseApi.Valor = grupoDTO;
                 }
                 else
                 {
