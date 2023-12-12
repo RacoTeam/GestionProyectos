@@ -7,14 +7,10 @@ namespace GestionProyectos.Server.Data;
 
 public partial class GestionDeProyectosAdmContext : DbContext
 {
-    public GestionDeProyectosAdmContext()
-    {
-    }
+    public GestionDeProyectosAdmContext() { }
 
     public GestionDeProyectosAdmContext(DbContextOptions<GestionDeProyectosAdmContext> options)
-        : base(options)
-    {
-    }
+        : base(options) { }
 
     public virtual DbSet<Cliente> Clientes { get; set; }
 
@@ -162,7 +158,7 @@ public partial class GestionDeProyectosAdmContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.Usuario1)
+            entity.Property(e => e.NombreUsuario)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("Usuario");
@@ -172,7 +168,7 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .HasConstraintName("FK__Usuario__IdRol__693CA210");
         });
 
-        /*
+        
         modelBuilder.Entity<UsuarioGrupo>(entity =>
         {
             entity.HasKey(e => new { e.IdUsuario, e.IdGrupo }).HasName("PK__UsuarioGrupo");
@@ -186,15 +182,15 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UsuarioGr__IdUsu__3493CFA7");
 
-            entity.HasOne(d => d.Id).WithMany(p => p.UsuarioGrupos)
+            entity.HasOne(d => d.Grupo).WithMany(p => p.UsuarioGrupos)
                 .HasPrincipalKey(p => new { p.IdGrupo, p.IdProyecto })
                 .HasForeignKey(d => new { d.IdGrupo, d.IdProyecto })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UsuarioGrupo__339FAB6E");
         });
-        */
+        
 
-        /*
+        
         modelBuilder.Entity<UsuarioGrupoTarea>(entity =>
         {
             entity.HasKey(e => new { e.IdUsuario, e.IdGrupo, e.IdTarea }).HasName("PK__UsuarioG__418C97FAC38257BF");
@@ -213,7 +209,7 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UsuarioGrupoTare__47A6A41B");
         });
-        */
+        
 
         OnModelCreatingPartial(modelBuilder);
     }

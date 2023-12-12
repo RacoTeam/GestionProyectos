@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionProyectos.Server.Controllers
 {
+    /*
     [Route("api/[controller]")]
     [ApiController]
     public class UsuarioGrupoController : Controller
@@ -58,4 +59,5 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
     }
+    */
 }

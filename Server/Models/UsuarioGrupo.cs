@@ -11,7 +11,7 @@ public partial class UsuarioGrupo
 
     public int IdProyecto { get; set; }
 
-    public virtual Grupo Id { get; set; } = null!;
+    public virtual Grupo Grupo { get; set; } = null!;
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 

@@ -17,7 +17,7 @@ namespace GestionProyectos.Shared.Models
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int IdProyecto { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        public virtual GrupoDTO Id { get; set; } = null!;
+        public virtual GrupoDTO Grupo { get; set; } = null!;
 
         public virtual UsuarioDTO IdUsuarioNavigation { get; set; } = null!;
 

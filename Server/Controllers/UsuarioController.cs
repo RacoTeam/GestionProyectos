@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-
-
 using GestionProyectos.Server.Models;
 using GestionProyectos.Server.Data;
 using GestionProyectos.Shared.Models;
@@ -9,6 +7,8 @@ using System.Diagnostics;
 
 using Microsoft.EntityFrameworkCore;
 
+using AutoMapper;
+using GestionProyectos.Server.Profiles;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -17,34 +17,43 @@ namespace GestionProyectos.Server.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
+        private readonly IMapper _mapper;
 
-
-        public UsuarioController(GestionDeProyectosAdmContext dbcontext)
+        public UsuarioController(GestionDeProyectosAdmContext dbcontext, IMapper mapper)
         {
             _dbContext = dbcontext;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        [Route("Lista")]
-        public async Task<IActionResult> Lista()
+        public async Task<ActionResult> ListarUsuarios()
         {
             var responseApi = new ResponseAPI<List<UsuarioDTO>>();
             var listaUsuariosDTO = new List<UsuarioDTO>(); 
             try
             {
-                foreach (var item in await _dbContext.Usuarios.Include(d => d.IdUsuario).ToListAsync())
+                var usuariosDb = await _dbContext.Usuarios.ToListAsync();
+                foreach (var usuario in usuariosDb)
                 {
-                    listaUsuariosDTO.Add(new UsuarioDTO
+                    usuario.IdRolNavigation = await _dbContext.Rols.FirstOrDefaultAsync(r => r.IdRol == usuario.IdRol);
+
+                    usuario.Proyectos = await _dbContext.Proyectos.Where(p => p.IdUsuario == usuario.IdUsuario).ToListAsync();
+                    foreach (var proyecto in usuario.Proyectos)
                     {
-                        IdUsuario = item.IdUsuario,
-                        Usuario1 = item.Usuario1,
-                        Clave = item.Clave,
-                        Nombre = item.Nombre,
-                        Apellido = item.Apellido,
-                        Dni = item.Dni,
-                        IdRol = item.IdRol,
-                        //TODO
-                    });
+                        proyecto.Grupos = null;
+                        proyecto.Tareas = null;
+                        proyecto.IdClienteNavigation = null;
+                        proyecto.IdUsuarioNavigation = null;
+                    }
+
+                    usuario.UsuarioGrupos = await _dbContext.UsuarioGrupos.Where(g => g.IdUsuario == usuario.IdUsuario).ToListAsync();
+                    foreach (var usuariogrupo in usuario.UsuarioGrupos)
+                    {
+                        usuariogrupo.UsuarioGrupoTareas = null;
+                        usuariogrupo.IdUsuarioNavigation = null;
+                    }
+
+                    listaUsuariosDTO.Add(_mapper.Map<UsuarioDTO>(usuario));
                 }
 
                 responseApi.EsCorrecto = true;
@@ -64,7 +73,7 @@ namespace GestionProyectos.Server.Controllers
         public async Task<ActionResult> ObtenerUsuario(int idUsuario)
         {
             var responseApi = new ResponseAPI<UsuarioDTO>();
-            var UsuarioDTO = new UsuarioDTO();
+            var usuarioDTO = new UsuarioDTO();
 
             try
             {
@@ -72,18 +81,28 @@ namespace GestionProyectos.Server.Controllers
 
                 if (dbUsuario != null)
                 {
-                    UsuarioDTO.IdUsuario = idUsuario;
+                    dbUsuario.IdRolNavigation = await _dbContext.Rols.FirstOrDefaultAsync(r => r.IdRol == dbUsuario.IdRol);
+                    
+                    dbUsuario.Proyectos = await _dbContext.Proyectos.Where(p => p.IdUsuario == dbUsuario.IdUsuario).ToListAsync();
+                    foreach (var proyecto in dbUsuario.Proyectos)
+                    {
+                        proyecto.Grupos = null;
+                        proyecto.Tareas = null;
+                        proyecto.IdClienteNavigation = null;
+                        proyecto.IdUsuarioNavigation = null;
+                    }
 
-                    UsuarioDTO.Usuario1 = dbUsuario.Usuario1;
-                    UsuarioDTO.Clave = dbUsuario.Clave;
-                    UsuarioDTO.Nombre = dbUsuario.Nombre;
-                    UsuarioDTO.Apellido = dbUsuario.Apellido;
-                    UsuarioDTO.Dni = dbUsuario.Dni;
-                    UsuarioDTO.IdRol = dbUsuario.IdRol;
-                    //TODO
+                    dbUsuario.UsuarioGrupos = await _dbContext.UsuarioGrupos.Where(g => g.IdUsuario == dbUsuario.IdUsuario).ToListAsync();
+                    foreach (var usuariogrupo in dbUsuario.UsuarioGrupos)
+                    {
+                        usuariogrupo.UsuarioGrupoTareas = null;
+                        usuariogrupo.IdUsuarioNavigation = null;
+                    }
+
+                    usuarioDTO = _mapper.Map<UsuarioDTO>(dbUsuario);
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = UsuarioDTO;
+                    responseApi.Valor = usuarioDTO;
                 }
                 else
                 {
@@ -102,21 +121,12 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AgregarUsuario(UsuarioDTO Usuario)
+        public async Task<ActionResult> AgregarUsuario(UsuarioDTO usuarioDTO)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbUsuario = new Usuario
-                {
-                    Usuario1 = Usuario.Usuario1,
-                    Clave = Usuario.Clave,
-                    Nombre = Usuario.Nombre,
-                    Apellido = Usuario.Apellido,
-                    Dni = Usuario.Dni,
-                    IdRol = Usuario.IdRol,
-                    //TODO
-                };
+                var dbUsuario = _mapper.Map<Usuario>(usuarioDTO);
 
                 _dbContext.Usuarios.Add(dbUsuario);
                 await _dbContext.SaveChangesAsync();
@@ -156,19 +166,17 @@ namespace GestionProyectos.Server.Controllers
                     _dbContext.Usuarios.Remove(dbUsuario);
                     await _dbContext.SaveChangesAsync();
 
-
                     responseApi.EsCorrecto = true;
                 }
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "Usuario no encontrada";
+                    responseApi.Mensaje = "Usuario no encontrado";
                 }
 
             }
             catch (Exception ex)
             {
-
                 responseApi.EsCorrecto = false;
                 responseApi.Mensaje = ex.Message;
             }

@@ -9,10 +9,13 @@ namespace GestionProyectos.Shared.Models
 {
     public class TareaDTO
     {
+        [Key]
         public int IdTarea { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
+        [StringLength(maximumLength: 50)]
         public string? Nombre { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
+        [StringLength(maximumLength: 255)]
         public string? Descripcion { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public DateTime? FechaInicio { get; set; }
