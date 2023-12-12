@@ -1,9 +1,25 @@
 ﻿@page "/"
-
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<MudPaper Elevation="3">
+    <MudGrid Class="d-flex justify-center text-center">
+        <MudItem>
+            <h1 class="">¡BIENVENID@@!</h1>
+            <p class="">Facilita tu vida con nuestra Gestion de Proyectos</p>
 
-Welcome to your new app.
+            <MudAlert Severity="Severity.Info">Por favor, te invito a iniciar sesion</MudAlert>
+            <MudButton Href="./Login"
+                       Variant="Variant.Filled"
+                       EndIcon="@Icons.Material.Filled.Login"
+                       Color="Color.Primary">
+                INICIAR SESION
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+
+
+
+
