@@ -1,28 +1,29 @@
-﻿using GestionProyectos.Shared.Models;
+﻿using GestionProyectos.Client.Services.Contrato;
+using GestionProyectos.Shared.Models;
 using System.Net.Http.Json;
 
 namespace GestionProyectos.Client.Services.Implementacion
 {
-    public class Tareaervice
+    public class TareaService : ITareaService
     {
         private readonly HttpClient _httpClient;
-        public Tareaervice(HttpClient httpClient)
+        public TareaService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<List<UsuarioDTO>> ListarTarea()
+        public async Task<List<TareaDTO>> ListarTareas()
         {
-            var result = await _httpClient.GetFromJsonAsync<ResponseAPI<List<UsuarioDTO>>>("api/Usuario/Lista");
+            var result = await _httpClient.GetFromJsonAsync<ResponseAPI<List<TareaDTO>>>("api/Tarea/Lista");
             if (result!.EsCorrecto)
                 return result.Valor!;
             else
                 throw new Exception(result.Mensaje);
         }
 
-        public async Task<UsuarioDTO> ObtenerUsuario(int id)
+        public async Task<TareaDTO> ObtenerTarea(int id)
         {
-            var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioDTO>>($"api/Usuario/{id}");
+            var result = await _httpClient.GetFromJsonAsync<ResponseAPI<TareaDTO>>($"api/Tarea/{id}");
 
             if (result!.EsCorrecto)
                 return result.Valor!;
@@ -30,9 +31,11 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(result.Mensaje);
         }
 
-        public async Task<int> AgregarUsuario(UsuarioDTO Usuario)
+        public async Task<int> AgregarTarea(TareaDTO Tarea)
         {
-            var result = await _httpClient.PostAsJsonAsync("api/Usuario", Usuario);
+            //TODO Formatear bien la fecha que reciba desde la vista a este formato 2012-04-23T18:25:43.511Z
+
+            var result = await _httpClient.PostAsJsonAsync("api/Tarea", Tarea);
             var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
 
             if (response!.EsCorrecto)
@@ -41,9 +44,9 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(response.Mensaje);
         }
 
-        public async Task<bool> EliminarUsuario(int id)
+        public async Task<bool> EliminarTarea(int id)
         {
-            var result = await _httpClient.DeleteAsync($"api/Usuario/{id}");
+            var result = await _httpClient.DeleteAsync($"api/Tarea/{id}");
             var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
 
             if (response!.EsCorrecto)

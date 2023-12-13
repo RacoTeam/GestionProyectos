@@ -98,18 +98,15 @@ namespace GestionProyectos.Server.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult> AgregarGrupo(GrupoDTO Grupo)
+        public async Task<ActionResult> AgregarGrupo(GrupoDTO grupoDTO)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbGrupo = new Grupo
-                {
-                    IdGrupo = Grupo.IdGrupo,
-                    IdProyecto = Grupo.IdProyecto,
-                    Nombre = Grupo.Nombre,
-                    //TODO
-                };
+                grupoDTO.IdProyectoNavigation = null;
+                grupoDTO.UsuarioGrupos = null;
+
+                var dbGrupo = _mapper.Map<Grupo>(grupoDTO);
 
                 _dbContext.Grupos.Add(dbGrupo);
                 await _dbContext.SaveChangesAsync();

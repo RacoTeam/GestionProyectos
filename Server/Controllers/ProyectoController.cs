@@ -101,20 +101,17 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AgregarProyecto(ProyectoDTO Proyecto)
+        public async Task<ActionResult> AgregarProyecto(ProyectoDTO proyectoDTO)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbProyecto = new Proyecto
-                {
-                    Descripcion = Proyecto.Descripcion,
-                    Nombre = Proyecto.Nombre,
-                    FechaInicio = Proyecto.FechaInicio,
-                    FechaFin = Proyecto.FechaFin,
-                    IdCliente = Proyecto.IdCliente,
-                    //TODO
-                };
+                proyectoDTO.IdClienteNavigation = null;
+                proyectoDTO.IdUsuarioNavigation = null;
+                proyectoDTO.Tareas = null;
+                proyectoDTO.Grupos = null;
+
+                var dbProyecto = _mapper.Map<Proyecto>(proyectoDTO);
 
                 _dbContext.Proyectos.Add(dbProyecto);
                 await _dbContext.SaveChangesAsync();

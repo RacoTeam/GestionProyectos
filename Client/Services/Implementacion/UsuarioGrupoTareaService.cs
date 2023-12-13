@@ -1,9 +1,10 @@
-﻿using GestionProyectos.Shared.Models;
+﻿using GestionProyectos.Client.Services.Contrato;
+using GestionProyectos.Shared.Models;
 using System.Net.Http.Json;
 
 namespace GestionProyectos.Client.Services.Implementacion
 {
-    public class UsuarioGrupoTareaService
+    public class UsuarioGrupoTareaService : IUsuarioGrupoTareaService
     {
         private readonly HttpClient _httpClient;
         public UsuarioGrupoTareaService(HttpClient httpClient)
@@ -20,9 +21,9 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(result.Mensaje);
         }
 
-        public async Task<UsuarioGrupoTareaDTO> ObtenerUsuarioGrupoTarea(int id)
+        public async Task<UsuarioGrupoTareaDTO> ObtenerUsuarioGrupoTarea(int idUsuario)
         {
-            var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioGrupoTareaDTO>>($"api/UsuarioGrupoTarea/{id}");
+            var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioGrupoTareaDTO>>($"api/UsuarioGrupoTarea/{idUsuario}");
 
             if (result!.EsCorrecto)
                 return result.Valor!;
@@ -41,9 +42,9 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(response.Mensaje);
         }
 
-        public async Task<bool> EliminarUsuarioGrupoTarea(int id)
+        public async Task<bool> EliminarUsuarioGrupoTarea(int idUsuario, int idTarea, int idGrupo, int idProyecto)
         {
-            var result = await _httpClient.DeleteAsync($"api/UsuarioGrupoTarea/{id}");
+            var result = await _httpClient.DeleteAsync($"api/UsuarioGrupoTarea/?idUsuario={idUsuario}&idTarea?={idTarea}&idTarea?={idGrupo}&idTarea?={idProyecto}");
             var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
 
             if (response!.EsCorrecto)

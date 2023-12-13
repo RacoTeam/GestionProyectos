@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GestionProyectos.Shared.Models
@@ -17,8 +18,9 @@ namespace GestionProyectos.Shared.Models
         [StringLength(maximumLength: 50)]
         public string? Nombre { get; set; }
 
-        public virtual ProyectoDTO IdProyectoNavigation { get; set; } = null!;
-
-        public virtual ICollection<UsuarioGrupoDTO> UsuarioGrupos { get; set; } = new List<UsuarioGrupoDTO>();
+        [JsonIgnore]
+        public virtual ProyectoDTO? IdProyectoNavigation { get; set; } = null!;
+        [JsonIgnore]
+        public virtual ICollection<UsuarioGrupoDTO>? UsuarioGrupos { get; set; } = new List<UsuarioGrupoDTO>();
     }
 }

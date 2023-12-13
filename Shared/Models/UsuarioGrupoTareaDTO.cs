@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,8 +20,10 @@ namespace GestionProyectos.Shared.Models
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int IdProyecto { get; set; }
 
-        public virtual TareaDTO Id { get; set; } = null!;
+        [JsonIgnore] 
+        public virtual TareaDTO? Id { get; set; } = null!;
 
-        public virtual UsuarioGrupoDTO IdNavigation { get; set; } = null!;
+        [JsonIgnore] 
+        public virtual UsuarioGrupoDTO? IdNavigation { get; set; } = null!;
     }
 }

@@ -1,9 +1,10 @@
-﻿using GestionProyectos.Shared.Models;
+﻿using GestionProyectos.Client.Services.Contrato;
+using GestionProyectos.Shared.Models;
 using System.Net.Http.Json;
 
 namespace GestionProyectos.Client.Services.Implementacion
 {
-    public class UsuarioService
+    public class UsuarioService : IUsuarioService
     {
         private readonly HttpClient _httpClient;
         public UsuarioService(HttpClient httpClient)

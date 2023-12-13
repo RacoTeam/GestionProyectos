@@ -1,9 +1,10 @@
-﻿using GestionProyectos.Shared.Models;
+﻿using GestionProyectos.Client.Services.Contrato;
+using GestionProyectos.Shared.Models;
 using System.Net.Http.Json;
 
 namespace GestionProyectos.Client.Services.Implementacion
 {
-    public class ClienteService
+    public class ClienteService : IClienteService
     {
         private readonly HttpClient _httpClient;
         public ClienteService(HttpClient httpClient)
@@ -11,7 +12,7 @@ namespace GestionProyectos.Client.Services.Implementacion
             _httpClient = httpClient;
         }
 
-        public async Task<List<ClienteDTO>> Lista()
+        public async Task<List<ClienteDTO>> ListarCLientes()
         {
             var result = await _httpClient.GetFromJsonAsync<ResponseAPI<List<ClienteDTO>>>("api/Cliente/Lista");
             if (result!.EsCorrecto)

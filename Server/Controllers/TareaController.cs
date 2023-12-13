@@ -101,21 +101,16 @@ namespace GestionProyectos.Server.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult> AgregarTarea(TareaDTO Tarea)
+        public async Task<ActionResult> AgregarTarea(TareaDTO tareaDTO)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbTarea = new Tarea
-                {
-                    Nombre = Tarea.Nombre,
-                    Descripcion = Tarea.Descripcion,
-                    FechaInicio = Tarea.FechaInicio,
-                    FechaFin = Tarea.FechaFin,
-                    Avance = Tarea.Avance,
-                    IdProyecto = Tarea.IdProyecto,
-                    //TODO
-                };
+                tareaDTO.IdProyectoNavigation = null;
+                tareaDTO.UsuarioGrupoTareas = null;
+                tareaDTO.Recursos = null;
+
+                var dbTarea = _mapper.Map<Tarea>(tareaDTO);
 
                 _dbContext.Tareas.Add(dbTarea);
                 await _dbContext.SaveChangesAsync();

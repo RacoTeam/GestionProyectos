@@ -97,18 +97,14 @@ namespace GestionProyectos.Server.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult> AgregarRecurso(RecursoDTO Recurso)
+        public async Task<ActionResult> AgregarRecurso(RecursoDTO recursoDTO)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbRecurso = new Recurso
-                {
-                    Nombre = Recurso.Nombre,
-                    CostoDia = Recurso.CostoDia,
-                    Tipo = Recurso.Tipo,
-                    IdTarea = Recurso.IdTarea,
-                };
+                recursoDTO.IdTareaNavigation = null;
+
+                var dbRecurso = _mapper.Map<Recurso>(recursoDTO);
 
                 _dbContext.Recursos.Add(dbRecurso);
                 await _dbContext.SaveChangesAsync();

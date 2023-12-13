@@ -127,6 +127,10 @@ namespace GestionProyectos.Server.Controllers
             var responseApi = new ResponseAPI<int>();
             try
             {
+                usuarioDTO.IdRolNavigation = null;
+                usuarioDTO.UsuarioGrupos = null;
+                usuarioDTO.Proyectos = null;
+
                 var dbUsuario = _mapper.Map<Usuario>(usuarioDTO);
 
                 _dbContext.Usuarios.Add(dbUsuario);

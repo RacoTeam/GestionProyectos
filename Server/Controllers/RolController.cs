@@ -86,16 +86,14 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AgregarRol(RolDTO Rol)
+        public async Task<ActionResult> AgregarRol(RolDTO rolDTO)
         {
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbRol = new Rol
-                {
-                    Nombre = Rol.Nombre,
-                    //TODO
-                };
+                rolDTO.Usuarios = null;
+
+                var dbRol = _mapper.Map<Rol>(rolDTO);
 
                 _dbContext.Rols.Add(dbRol);
                 await _dbContext.SaveChangesAsync();
