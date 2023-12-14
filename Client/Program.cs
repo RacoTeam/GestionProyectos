@@ -1,20 +1,14 @@
+using Blazored.LocalStorage;
+using Blazored.Toast;
+using CurrieTechnologies.Razor.SweetAlert2;
 using GestionProyectos.Client;
+using GestionProyectos.Client.Extensions;
 using GestionProyectos.Client.Services.Contrato;
 using GestionProyectos.Client.Services.Implementacion;
-using GestionProyectos.Shared.Models;
-using GestionProyectos.Client.Extensions;
-
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.AspNetCore.Components.Authorization;
-
-using Blazored.LocalStorage;
-using CurrieTechnologies.Razor.SweetAlert2;
-
-using MudBlazor;
 using MudBlazor.Services;
-using System.Threading;
-using Blazored.Toast;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -37,7 +31,7 @@ builder.Services.AddMudServices();
 
 //Autorizacion
 builder.Services.AddAuthorizationCore();
-builder.Services.AddScoped<AuthenticationStateProvider,AutenticacionExtension>();
+builder.Services.AddScoped<AuthenticationStateProvider, AutenticacionExtension>();
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();

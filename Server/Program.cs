@@ -1,10 +1,7 @@
-using Microsoft.AspNetCore.ResponseCompression;
-using GestionProyectos.Server.Data;
-using GestionProyectos.Server.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
 using AutoMapper;
+using GestionProyectos.Server.Data;
 using GestionProyectos.Server.Profiles;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,14 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-
-
-using GestionProyectos.Server.Models;
+﻿using AutoMapper;
 using GestionProyectos.Server.Data;
+using GestionProyectos.Server.Models;
 using GestionProyectos.Shared.Models;
-using System.Diagnostics;
-
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -73,7 +68,7 @@ namespace GestionProyectos.Server.Controllers
 
                 if (dbProyecto != null)
                 {
-                    dbProyecto.IdClienteNavigation = _dbContext.Clientes.FirstOrDefault(c=>c.IdCliente == dbProyecto.IdCliente);
+                    dbProyecto.IdClienteNavigation = _dbContext.Clientes.FirstOrDefault(c => c.IdCliente == dbProyecto.IdCliente);
                     dbProyecto.IdClienteNavigation.Proyectos = null;
 
                     dbProyecto.IdUsuarioNavigation = _dbContext.Usuarios.FirstOrDefault(u => u.IdUsuario == dbProyecto.IdUsuario);

@@ -1,18 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using GestionProyectos.Server.Models;
+﻿using AutoMapper;
 using GestionProyectos.Server.Data;
+using GestionProyectos.Server.Models;
 using GestionProyectos.Shared.Models;
-using System.Diagnostics;
-
-using GestionProyectos.Client.Extensions;
-
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-using AutoMapper;
-using GestionProyectos.Server.Profiles;
-using Microsoft.AspNetCore.Authorization;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -195,8 +186,6 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
-
-        //[HttpGet("Buscar/{nombreUsuario}/{Clave}")]
         [HttpGet]
         public async Task<IActionResult> Buscar(string nombreUsuario, string Clave)
         {

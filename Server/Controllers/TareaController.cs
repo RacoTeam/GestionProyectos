@@ -1,14 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-
-
-using GestionProyectos.Server.Models;
+﻿using AutoMapper;
 using GestionProyectos.Server.Data;
+using GestionProyectos.Server.Models;
 using GestionProyectos.Shared.Models;
-using System.Diagnostics;
-
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 
 namespace GestionProyectos.Server.Controllers
 {

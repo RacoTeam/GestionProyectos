@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using GestionProyectos.Server.Models;
+﻿using GestionProyectos.Server.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionProyectos.Server.Data;
@@ -168,7 +166,7 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .HasConstraintName("FK__Usuario__IdRol__693CA210");
         });
 
-        
+
         modelBuilder.Entity<UsuarioGrupo>(entity =>
         {
             entity.HasKey(e => new { e.IdUsuario, e.IdGrupo }).HasName("PK__UsuarioGrupo");
@@ -188,9 +186,9 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UsuarioGrupo__339FAB6E");
         });
-        
 
-        
+
+
         modelBuilder.Entity<UsuarioGrupoTarea>(entity =>
         {
             entity.HasKey(e => new { e.IdUsuario, e.IdGrupo, e.IdTarea }).HasName("PK__UsuarioG__418C97FAC38257BF");
@@ -209,7 +207,7 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UsuarioGrupoTare__47A6A41B");
         });
-        
+
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -1,14 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-
-
-using GestionProyectos.Server.Models;
+﻿using AutoMapper;
 using GestionProyectos.Server.Data;
+using GestionProyectos.Server.Models;
 using GestionProyectos.Shared.Models;
-using System.Diagnostics;
-
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
 
 namespace GestionProyectos.Server.Controllers
 {
@@ -20,7 +15,7 @@ namespace GestionProyectos.Server.Controllers
         private readonly GestionDeProyectosAdmContext _dbContext;
         private readonly IMapper _mapper;
 
-        public UsuarioGrupoController(GestionDeProyectosAdmContext dbcontext,IMapper mapper)
+        public UsuarioGrupoController(GestionDeProyectosAdmContext dbcontext, IMapper mapper)
         {
             _dbContext = dbcontext;
             _mapper = mapper;
@@ -35,7 +30,7 @@ namespace GestionProyectos.Server.Controllers
             try
             {
                 var usuariosGruposDb = await _dbContext.UsuarioGrupos.ToListAsync();
-                foreach(var usuarioG in usuariosGruposDb)
+                foreach (var usuarioG in usuariosGruposDb)
                 {
                     usuarioG.IdUsuarioNavigation = await _dbContext.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == usuarioG.IdUsuario);
                     usuarioG.IdUsuarioNavigation.UsuarioGrupos = null;
@@ -92,7 +87,7 @@ namespace GestionProyectos.Server.Controllers
             var responseApi = new ResponseAPI<int>();
             try
             {
-                var dbUsuarioGrupo= _mapper.Map<UsuarioGrupo>(usuarioGrupoDTO);
+                var dbUsuarioGrupo = _mapper.Map<UsuarioGrupo>(usuarioGrupoDTO);
 
                 _dbContext.UsuarioGrupos.Add(dbUsuarioGrupo);
                 await _dbContext.SaveChangesAsync();

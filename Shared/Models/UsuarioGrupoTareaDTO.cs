@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace GestionProyectos.Shared.Models
 {
@@ -20,10 +14,10 @@ namespace GestionProyectos.Shared.Models
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int IdProyecto { get; set; }
 
-        [JsonIgnore] 
+        [JsonIgnore]
         public virtual TareaDTO? Id { get; set; } = null!;
 
-        [JsonIgnore] 
+        [JsonIgnore]
         public virtual UsuarioGrupoDTO? IdNavigation { get; set; } = null!;
     }
 }

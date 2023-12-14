@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using GestionProyectos.Shared.Models;
 using GestionProyectos.Server.Models;
+using GestionProyectos.Shared.Models;
 
 namespace GestionProyectos.Server.Profiles
 {
