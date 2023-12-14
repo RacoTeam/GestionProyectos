@@ -4,6 +4,16 @@
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
+@using GestionProyectos.Shared.Models;
+@using Microsoft.AspNetCore.Components.Authorization
+@using GestionProyectos.Client.Extensions;
+@using GestionProyectos.Client.Services.Contrato;
+@inject IUsuarioService _usuarioServicio;
+@inject NavigationManager _navServicio;
+@inject IToastService toastService;
+@inject AuthenticationStateProvider autenticacionProvider;
+
+
 <MudGrid Class="justify-center">
 
     <MudItem xs="12">
@@ -12,17 +22,66 @@
                 <h2>LOGIN</h2>
             </div>
             <MudForm >
-                <MudTextField T="string" Label="Username"  />
-                <MudTextField T="string" Label="Password"
-                              InputType="InputType.Password" />
+                <MudTextField T="string" Label="Username" @bind-Value="@usuario.NombreUsuario" />
+                <MudTextField T="string" Label="Password" @bind-Value="@usuario.Clave"
+                              InputType="InputType.Password"  />
                 <div class="d-flex align-center justify-space-between">
                     <MudCheckBox T="bool"  Label="Recordarme" />
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Iniciar Sesion</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="Iniciar">Iniciar Sesion</MudButton>
                 </div>
             </MudForm>
         </MudPaper>
     </MudItem>
 </MudGrid>
+
+@code{
+    private UsuarioDTO usuario = new UsuarioDTO();
+    private SesionDTO sesionUsuario = new SesionDTO();
+
+    private async Task Iniciar()
+    {
+        // usuario.NombreUsuario = "Profe";
+        // usuario.Clave = "1234";
+        usuario.IdUsuario = 4;
+        usuario.IdRol = 4;
+
+        sesionUsuario.Rol = "administrador";
+        sesionUsuario.NombreCompleto = "Profe";
+        sesionUsuario.IdUsuario = 11;
+
+        //ar response = await _usuarioServicio.ObtenerUsuario(usuario.IdUsuario);
+        var response = await _usuarioServicio.Buscar(usuario);
+
+
+        if (usuario is null)
+        {
+            toastService.ShowError("No se encuentra al usuario, registrese y vuelva a intentar.");
+        }
+        else
+        {
+            var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+            await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
+
+
+            if (sesionUsuario.Rol.ToLower() == "administrador")
+            {
+                _navServicio.NavigateTo("/Usuarios/Listado");
+                toastService.ShowSuccess("Inicio exitoso.");
+            }
+            if (!(sesionUsuario.Rol.ToLower() == "administrador"))
+            {
+                _navServicio.NavigateTo("/");
+                toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
+            }
+            //await sessionStorage.SetItemAsync("id", usuario.Id);
+            //await JsRuntime.InvokeVoidAsync("location.reload");
+        }
+
+    }
+
+}
+
+
 @* @code {
     bool success;
     string[] errors = { };

@@ -5,15 +5,21 @@ using GestionProyectos.Server.Data;
 using GestionProyectos.Shared.Models;
 using System.Diagnostics;
 
+using GestionProyectos.Client.Extensions;
+
 using Microsoft.EntityFrameworkCore;
 
 using AutoMapper;
 using GestionProyectos.Server.Profiles;
+using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace GestionProyectos.Server.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
+
     public class UsuarioController : ControllerBase
     {
         private readonly GestionDeProyectosAdmContext _dbContext;
@@ -184,6 +190,44 @@ namespace GestionProyectos.Server.Controllers
             {
                 responseApi.EsCorrecto = false;
                 responseApi.Mensaje = ex.Message;
+            }
+
+            return Ok(responseApi);
+        }
+
+
+        //[HttpGet("Buscar/{nombreUsuario}/{Clave}")]
+        [HttpGet]
+        public async Task<IActionResult> Buscar(string nombreUsuario, string Clave)
+        {
+            var responseApi = new ResponseAPI<UsuarioDTO>();
+
+            var miobjeto = await _dbContext.Usuarios
+                .FirstOrDefaultAsync(ob => ob.NombreUsuario == nombreUsuario && ob.Clave == Clave);
+
+            if (miobjeto == null)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = "Usuario no encontrado";
+            }
+            else
+            {
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = new UsuarioDTO
+                {
+                    IdUsuario = miobjeto.IdUsuario,
+                    NombreUsuario = miobjeto.NombreUsuario,
+                    Clave = miobjeto.Clave,
+                    Nombre = miobjeto.Nombre,
+                    Apellido = miobjeto.Apellido,
+                    Dni = miobjeto.Dni,
+                    IdRol = miobjeto.IdRol,
+                    IdRolNavigation = null,
+                    Proyectos = null,
+                    UsuarioGrupos = null,
+                };
+
             }
 
             return Ok(responseApi);

@@ -8,5 +8,10 @@ namespace GestionProyectos.Client.Services.Contrato
         Task<UsuarioDTO> ObtenerUsuario(int id);
         Task<int> AgregarUsuario(UsuarioDTO Usuario);
         Task<bool> EliminarUsuario(int id);
+
+        Task<SesionDTO> Buscar(UsuarioDTO usuario);
+
+        //Task<SesionDTO> Autorizacion(LoginDTO modelo);
+
     }
 }

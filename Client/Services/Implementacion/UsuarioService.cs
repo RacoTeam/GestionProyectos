@@ -52,5 +52,38 @@ namespace GestionProyectos.Client.Services.Implementacion
             else
                 throw new Exception(response.Mensaje);
         }
+
+        public async Task<SesionDTO> Buscar(UsuarioDTO usuario)
+        {
+            try
+            {
+
+                //var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioDTO>>(
+                //    $"api/Usuario/Buscar/{usuario.NombreUsuario}/{usuario.Clave}");
+
+                var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioDTO>>($"api/Usuario/?NombreUsuario={usuario.NombreUsuario}&Clave?={usuario.Clave}");
+
+
+                SesionDTO sesion = new SesionDTO();
+
+
+                if (result!.EsCorrecto)
+                {
+                    sesion.IdUsuario = result.Valor.IdUsuario;
+                    sesion.NombreCompleto = result.Valor.NombreUsuario;
+                    sesion.Rol = result.Valor.IdRolNavigation.Nombre;
+                    return sesion;
+                }
+
+                else
+                    throw new Exception(result.Mensaje);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en la llamada HTTP: {ex.Message}");
+                throw;
+            }
+            
+        }
     }
 }

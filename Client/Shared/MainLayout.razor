@@ -1,4 +1,11 @@
 ﻿@inherits LayoutComponentBase
+@inject SweetAlertService Swal;
+@inject NavigationManager _navigationManager;
+@using GestionProyectos.Client.Extensions;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims;
+@inject AuthenticationStateProvider autenticacionProvider;  
+
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -9,18 +16,34 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         Sistema de Gestion de Proyectos
         <MudSpacer />
-        <MudLink Href="./Login" Typo="Typo.body2" Class="mud-theme-primary">Iniciar Sesion</MudLink>
+         
+        <AuthorizeView Roles="Administrador">
+@*             <NotAuthorized>
+                <MudLink Href="./Login" Typo="Typo.body2" Class="mud-theme-primary">Iniciar Sesion</MudLink>
+            </NotAuthorized> *@
+
+                <MudLink Href="./Login" Typo="Typo.body2" Class="mud-theme-primary" @onclick="CerrarSesion">Cerrar Sesion</MudLink>
+            
+        </AuthorizeView>
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen">
         <MudPaper Width="250px" Class="py-3" Elevation="0">
+
             <MudNavMenu>
                 <MudText Typo="Typo.h6" Class="px-4">RacoTeam</MudText>
                 <MudDivider Class="my-2" />
+
                 <MudNavLink Href="/">Inicio</MudNavLink>
-                <MudNavGroup Title="Usuarios" Expanded="true">
-                    <MudNavLink Href="/Usuarios/Listado">Listado</MudNavLink>
-                    <MudNavLink Href="/Usuarios/Grupos">Grupos de Usuario</MudNavLink>
-                </MudNavGroup>
+
+
+                 <AuthorizeView Roles="Administrador"> 
+                    <MudNavGroup Title="Usuarios" Expanded="true">
+                        <MudNavLink Href="/Usuarios/Listado">Listado</MudNavLink>
+                        <MudNavLink Href="/Usuarios/Grupos">Grupos de Usuario</MudNavLink>
+                    </MudNavGroup>
+                 </AuthorizeView> 
+
+
                 <MudNavLink Href="/about">About us</MudNavLink>
             </MudNavMenu>
         </MudPaper>
@@ -38,6 +61,25 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private async Task CerrarSesion()
+    {
+        SweetAlertResult result = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Desea cerrar sesion?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Si",
+                CancelButtonText = "No",
+            });
+
+        if (result.IsConfirmed)
+        {
+            var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+            await autenticacionExt.ActualizarEstadoAutenticacion(null);
+            _navigationManager.NavigateTo("/", true);
+        }
     }
 }
 

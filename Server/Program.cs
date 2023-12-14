@@ -23,6 +23,17 @@ var mapperConfiguration = new MapperConfiguration(configuration =>
     configuration.AddProfile(new AutomapperProfile());
 });
 
+
+builder.Services.AddCors(opciones =>
+{
+    opciones.AddPolicy("nuevaPolitica", app =>
+    {
+        app.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+
+
 var mapper = mapperConfiguration.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
@@ -39,6 +50,11 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+
+
+
+app.UseCors("nuevaPolitica");
 
 app.UseHttpsRedirection();
 
