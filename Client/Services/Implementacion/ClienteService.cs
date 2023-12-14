@@ -12,7 +12,7 @@ namespace GestionProyectos.Client.Services.Implementacion
             _httpClient = httpClient;
         }
 
-        public async Task<List<ClienteDTO>> ListarCLientes()
+        public async Task<List<ClienteDTO>> ListarClientes()
         {
             var result = await _httpClient.GetFromJsonAsync<ResponseAPI<List<ClienteDTO>>>("api/Cliente/Lista");
             if (result!.EsCorrecto)
