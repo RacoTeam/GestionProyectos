@@ -24,8 +24,6 @@ builder.Services.AddScoped<IGrupoService, GrupoService>();
 builder.Services.AddScoped<IUsuarioGrupoService, UsuarioGrupoService>();
 builder.Services.AddScoped<IUsuarioGrupoTareaService, UsuarioGrupoTareaService>();
 
-
-
 // Añado MudBlazor
 builder.Services.AddMudServices();
 
@@ -36,6 +34,8 @@ builder.Services.AddScoped<AuthenticationStateProvider, AutenticacionExtension>(
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
 builder.Services.AddSweetAlert2();
+
+builder.Services.AddFormGeneration();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

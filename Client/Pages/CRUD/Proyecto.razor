@@ -1,0 +1,131 @@
+﻿@page "/Proyecto"
+<PageTitle>Proyecto</PageTitle>
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+
+@using CG.Blazor.Forms
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using GestionProyectos.Shared.Models;
+@using Microsoft.AspNetCore.Components.Authorization
+@using GestionProyectos.Client.Extensions;
+@using GestionProyectos.Client.Services.Contrato;
+
+@inject IProyectoService _proyectoServicio;
+@inject NavigationManager _navServicio;
+@inject ISnackbar Snackbar;
+@inject AuthenticationStateProvider autenticacionProvider;
+@inject SweetAlertService Swal;
+@* 
+if varAgregar then
+<DynamicForm Model="@proyectoDTO" OnValidSubmit="Agregar" />
+
+if modificar then
+<DynamicForm Model="@proyectoDTO" OnValidSubmit="Agregar" /> *@
+
+<DynamicForm Model="@proyectoDTO" OnValidSubmit="OnValidSubmit" />
+
+@code{
+    private ProyectoDTO proyectoDTO = new ProyectoDTO();
+    private SesionDTO sesionProyectoDTO = new SesionDTO();
+
+    /*private MyModel model = new MyModel();
+    
+    [RenderValidationSummary()]
+    [RenderFluentValidationValidator]
+    public class MyModel
+    {
+        [RenderMudTextField()]
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        public string FirstName { get; set; }
+        
+        [RenderMudTextField(Placeholder = "enter something")]
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        public string LastName { get; set; }
+
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
+        public DateTime? DateOfBirth { get; set; }
+    }*/
+
+    protected override async Task OnInitializedAsync()
+    {
+        proyectoDTO.Nombre = "Desarrollo de Script";
+    }
+
+    private async void OnValidSubmit(EditContext context)
+    {
+        Console.WriteLine("Correcto");
+        // // proyecto.NombreProyecto = "Profe";
+        // // proyecto.Clave = "1234";
+        // // proyecto.IdProyecto = 4;
+        // // proyecto.IdRol = 4;
+
+        // // sesionProyecto.Rol = "Administrador";
+        // // sesionProyecto.NombreCompleto = "Profe";
+        // // sesionProyecto.IdProyecto = 11;
+
+        // if (proyectoDTO.NombreProyecto != null && proyectoDTO.Clave != null)
+        // {
+        //     var response = await _proyectoServicio.Buscar(proyectoDTO.Nombre, proyectoDTO.Clave);
+        //     if (response is null)
+        //     {
+        //         Snackbar.Add("No se encuentra al proyecto, registrese y vuelva a intentar.", Severity.Error);
+        //     }
+        //     else
+        //     {
+        //         var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+        //         await autenticacionExt.ActualizarEstadoAutenticacion(response);
+
+        //         if (response.Rol.ToLower() == "administrador")
+        //         {
+        //             //toastService.ShowSuccess("Inicio exitoso.");
+        //             _navServicio.NavigateTo("/Proyectos/Listado");
+        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
+        //         }
+        //         if (!(response.Rol.ToLower() == "administrador"))
+        //         {
+        //             _navServicio.NavigateTo("/");
+        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
+        //             //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
+        //         }
+
+        //         //await sessionStorage.SetItemAsync("id", proyecto.Id);
+        //         //await JsRuntime.InvokeVoidAsync("location.reload");
+        //     }
+        // }
+    }
+}
+
+
+@* @code {
+    bool success;
+    string[] errors = { };
+    MudTextField<string> pwField1;
+    MudForm form;
+
+    private IEnumerable<string> PasswordStrength(string pw)
+    {
+        if (string.IsNullOrWhiteSpace(pw))
+        {
+            yield return "Password is required!";
+            yield break;
+        }
+        if (pw.Length < 8)
+            yield return "Password must be at least of length 8";
+        if (!Regex.IsMatch(pw, @"[A-Z]"))
+            yield return "Password must contain at least one capital letter";
+        if (!Regex.IsMatch(pw, @"[a-z]"))
+            yield return "Password must contain at least one lowercase letter";
+        if (!Regex.IsMatch(pw, @"[0-9]"))
+            yield return "Password must contain at least one digit";
+    }
+
+    private string PasswordMatch(string arg)
+    {
+        if (pwField1.Value != arg)
+            return "Passwords don't match";
+        return null;
+    }
+
+} *@

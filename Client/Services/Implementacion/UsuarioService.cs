@@ -1,7 +1,6 @@
 ﻿using GestionProyectos.Client.Services.Contrato;
 using GestionProyectos.Shared.Models;
 using System.Net.Http.Json;
-using static MudBlazor.CategoryTypes;
 
 namespace GestionProyectos.Client.Services.Implementacion
 {
@@ -54,31 +53,20 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(response.Mensaje);
         }
 
-        public async Task<SesionDTO> Buscar(UsuarioDTO usuario)
+        public async Task<SesionDTO> Buscar(string nombreUsuario, string clave)
         {
-            try
+            var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioDTO>>($"api/Usuario/?nombreUsuario={nombreUsuario}&Clave={clave}");
+
+            SesionDTO sesion = new SesionDTO();
+            if (result!.EsCorrecto)
             {
-                var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioDTO>>($"api/Usuario/?nombreUsuario={usuario.NombreUsuario}&Clave={usuario.Clave}");
-
-
-                SesionDTO sesion = new SesionDTO();
-                if (result!.EsCorrecto)
-                {
-                    sesion.IdUsuario = result.Valor.IdUsuario;
-                    sesion.NombreCompleto = result.Valor.NombreUsuario;
-                    sesion.Rol = result.Valor.IdRolNavigation.Nombre;
-                    return sesion;
-                }
-
-                else
-                    throw new Exception(result.Mensaje);
+                sesion.IdUsuario = result.Valor.IdUsuario;
+                sesion.NombreCompleto = $"{result.Valor.Nombre} {result.Valor.Apellido}";
+                sesion.Rol = result.Valor.IdRolNavigation.Nombre;
+                return sesion;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error en la llamada HTTP: {ex.Message}");
-                throw;
-            }
-            
+            else
+                throw new Exception(result.Mensaje);
         }
     }
 }

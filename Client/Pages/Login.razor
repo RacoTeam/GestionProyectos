@@ -4,42 +4,63 @@
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
+@using CurrieTechnologies.Razor.SweetAlert2;
 @using GestionProyectos.Shared.Models;
 @using Microsoft.AspNetCore.Components.Authorization
 @using GestionProyectos.Client.Extensions;
 @using GestionProyectos.Client.Services.Contrato;
+
 @inject IUsuarioService _usuarioServicio;
 @inject NavigationManager _navServicio;
-@inject IToastService toastService;
+@inject ISnackbar Snackbar;
 @inject AuthenticationStateProvider autenticacionProvider;
 @inject SweetAlertService Swal;
 
-
-<MudGrid Class="justify-center">
-
-    <MudItem xs="12">
-        <MudPaper Class="pa-4">
-            <div class="text-center">
-                <h2>LOGIN</h2>
-            </div>
-            <MudForm >
-                <MudTextField T="string" Label="Username" @bind-Value="@usuario.NombreUsuario" />
-                <MudTextField T="string" Label="Password" @bind-Value="@usuario.Clave"
-                              InputType="InputType.Password"  />
-                <div class="d-flex align-center justify-space-between">
+<EditForm Model="@inicioSesion" OnValidSubmit="OnValidSubmit" OnInvalidSubmit="OnInvalidSubmit" FormName="LoginForm">
+<DataAnnotationsValidator/>
+    <MudGrid Class="justify-center">
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField T="string" Label="Usuario" @bind-Value="inicioSesion.Usuario" For="@(() => inicioSesion.Usuario)" />
+                    <MudTextField T="string" Label="Contraseña" @bind-Value="inicioSesion.Clave" For="@(() => inicioSesion.Clave)"
+                                    InputType="InputType.Password"  />
+                </MudCardContent>
+                <MudCardActions>
                     <MudCheckBox T="bool"  Label="Recordarme" />
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="Iniciar">Iniciar Sesion</MudButton>
-                </div>
-            </MudForm>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Iniciar Sesion</MudButton>
+                </MudCardActions>
+                @* @if (success)
+                {
+                    <MudText Color="Color.Success">Success</MudText>
+                }
+                else
+                {
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                } *@
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
 
 @code{
-    private UsuarioDTO usuario = new UsuarioDTO();
-    private SesionDTO sesionUsuario = new SesionDTO();
+    private InicioSesion inicioSesion = new InicioSesion();
+    private SesionDTO sesionUsuarioDTO = new SesionDTO();
 
-    private async Task Iniciar()
+    bool success = false;
+
+    public class InicioSesion
+    {
+        [Required(ErrorMessage = "El campo Nombre de Usuario es requerido")]
+        public string Usuario { get; set; } = "";
+
+        [Required(ErrorMessage = "El campo Contraseña es requerido")]
+        public string Clave { get; set; } = "";
+    }
+
+    private async void OnValidSubmit(EditContext context)
     {
         // usuario.NombreUsuario = "Profe";
         // usuario.Clave = "1234";
@@ -49,39 +70,68 @@
         // sesionUsuario.Rol = "Administrador";
         // sesionUsuario.NombreCompleto = "Profe";
         // sesionUsuario.IdUsuario = 11;
+        success = true;
+        StateHasChanged();
 
-        var response = await _usuarioServicio.Buscar(usuario);
-        if (response is null)
+        try
         {
-            toastService.ShowError("No se encuentra al usuario, registrese y vuelva a intentar.");
-        }
-        else
-        {
-            var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-            await autenticacionExt.ActualizarEstadoAutenticacion(response);
+            var response = await _usuarioServicio.Buscar(inicioSesion.Usuario, inicioSesion.Clave);
 
-            
+            // Si se encuentra al usuario:
             if (response.Rol.ToLower() == "administrador")
             {
-                //toastService.ShowSuccess("Inicio exitoso.");
+                var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+                await autenticacionExt.ActualizarEstadoAutenticacion(response);
                 _navServicio.NavigateTo("/Usuarios/Listado");
-                snackbarServicio.Add("Inicio Exitoso",Severity.Info);
             }
-            if (!(response.Rol.ToLower() == "administrador"))
+            else
             {
-                _navServicio.NavigateTo("/");
-                //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
+                Snackbar.Add("Usuario no tiene el rol requerido para el ingreso", Severity.Warning);
             }
 
-            //await sessionStorage.SetItemAsync("id", usuario.Id);
-            //await JsRuntime.InvokeVoidAsync("location.reload");
+            Snackbar.Add("Inicio Exitoso", Severity.Success);
+        }
+        catch
+        {
+            // Si no encuentra al usuario:
+            Snackbar.Add("Usuario y/o contraseña incorrectos", Severity.Error);
         }
 
+        // try
+        // {
+        //     var response = await _usuarioServicio.Buscar(inicioSesion.Usuario, inicioSesion.Clave);
+        // }
+        // catch
+        // {
+        //     // Si no encuentra al usuario:
+        //     Snackbar.Add("No se encuentra al usuario, registrese y vuelva a intentar.", Severity.Error);
+        // }
+
+        // // Si se encuentra al usuario:
+
+        // var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+        // await autenticacionExt.ActualizarEstadoAutenticacion(response);
+
+        // if (response.Rol.ToLower() == "administrador")
+        // {
+        //     //toastService.ShowSuccess("Inicio exitoso.");
+        //     _navServicio.NavigateTo("/Usuarios/Listado");
+        //     Snackbar.Add("Inicio Exitoso", Severity.Info);
+        // }
+        // if (!(response.Rol.ToLower() == "administrador"))
+        // {
+        //     _navServicio.NavigateTo("/");
+        //     Snackbar.Add("Inicio Exitoso", Severity.Info);
+        //     //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
+        // }
+
+        //await sessionStorage.SetItemAsync("id", usuario.Id);
+        //await JsRuntime.InvokeVoidAsync("location.reload");
+}
+    private void OnInvalidSubmit(EditContext context)
+    {
+        Console.WriteLine($"Invalido. Usuario: {inicioSesion.Usuario} Clave: {inicioSesion.Clave} Context: {context}");
     }
-
-    
-
-
 }
 
 

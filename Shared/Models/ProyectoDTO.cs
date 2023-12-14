@@ -1,13 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CG.Blazor.Forms.Attributes;
 
 namespace GestionProyectos.Shared.Models
 {
+    [RenderValidationSummary()]
+    [RenderFluentValidationValidator]
     public class ProyectoDTO
     {
         [Key]
         public int IdProyecto { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
         [StringLength(maximumLength: 50)]
+        [RenderMudTextField()]
         public string? Nombre { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
         [StringLength(maximumLength: 255)]

@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CG.Blazor.Forms" Version="2023.1.4" />
+    <PackageReference Include="CG.Blazor.Forms._FluentValidations" Version="2023.1.4" />
+    <PackageReference Include="CG.Blazor.Forms._MudBlazor" Version="2023.1.5" />
+	<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 </Project>

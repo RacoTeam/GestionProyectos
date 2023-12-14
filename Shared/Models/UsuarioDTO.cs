@@ -7,11 +7,11 @@ namespace GestionProyectos.Shared.Models
         [Key]
         public int IdUsuario { get; set; }
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [StringLength(maximumLength: 50)]
+        [Required(ErrorMessage = "El campo Nombre de Usuario es requerido")]
+        [StringLength(15, ErrorMessage = "El nombre de usuario no debe ser más de 15 caracteres")]
         public string? NombreUsuario { get; set; }
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
+        [Required(ErrorMessage = "El campo Contraseña es requerido")]
         [StringLength(maximumLength: 50)]
         public string? Clave { get; set; }
 
