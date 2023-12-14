@@ -15,14 +15,11 @@
                         if (context.User.Identity?.IsAuthenticated != true)
                         {
                             navManager.NavigateTo("/login");
-                            <p class=" " alert alert-danger>No esta autorizado para ver esta pagina</p>
                         }
-                            
                         else
                         {
                             <p class=" " alert alert-danger>No esta autorizado para ver esta pagina</p>
                         }
-                        
                     }
                 </NotAuthorized>
 

@@ -12,6 +12,7 @@
 @inject NavigationManager _navServicio;
 @inject IToastService toastService;
 @inject AuthenticationStateProvider autenticacionProvider;
+@inject SweetAlertService Swal;
 
 
 <MudGrid Class="justify-center">
@@ -42,42 +43,44 @@
     {
         // usuario.NombreUsuario = "Profe";
         // usuario.Clave = "1234";
-        usuario.IdUsuario = 4;
-        usuario.IdRol = 4;
+        // usuario.IdUsuario = 4;
+        // usuario.IdRol = 4;
 
-        sesionUsuario.Rol = "administrador";
-        sesionUsuario.NombreCompleto = "Profe";
-        sesionUsuario.IdUsuario = 11;
+        // sesionUsuario.Rol = "Administrador";
+        // sesionUsuario.NombreCompleto = "Profe";
+        // sesionUsuario.IdUsuario = 11;
 
-        //ar response = await _usuarioServicio.ObtenerUsuario(usuario.IdUsuario);
         var response = await _usuarioServicio.Buscar(usuario);
-
-
-        if (usuario is null)
+        if (response is null)
         {
             toastService.ShowError("No se encuentra al usuario, registrese y vuelva a intentar.");
         }
         else
         {
             var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-            await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
+            await autenticacionExt.ActualizarEstadoAutenticacion(response);
 
-
-            if (sesionUsuario.Rol.ToLower() == "administrador")
+            
+            if (response.Rol.ToLower() == "administrador")
             {
+                //toastService.ShowSuccess("Inicio exitoso.");
                 _navServicio.NavigateTo("/Usuarios/Listado");
-                toastService.ShowSuccess("Inicio exitoso.");
+                snackbarServicio.Add("Inicio Exitoso",Severity.Info);
             }
-            if (!(sesionUsuario.Rol.ToLower() == "administrador"))
+            if (!(response.Rol.ToLower() == "administrador"))
             {
                 _navServicio.NavigateTo("/");
-                toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
+                //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
             }
+
             //await sessionStorage.SetItemAsync("id", usuario.Id);
             //await JsRuntime.InvokeVoidAsync("location.reload");
         }
 
     }
+
+    
+
 
 }
 

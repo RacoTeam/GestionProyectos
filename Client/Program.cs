@@ -30,7 +30,7 @@ builder.Services.AddScoped<IGrupoService, GrupoService>();
 builder.Services.AddScoped<IUsuarioGrupoService, UsuarioGrupoService>();
 builder.Services.AddScoped<IUsuarioGrupoTareaService, UsuarioGrupoTareaService>();
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
 
 // Añado MudBlazor
 builder.Services.AddMudServices();
@@ -43,7 +43,6 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
 builder.Services.AddSweetAlert2();
 
-
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:7195") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 await builder.Build().RunAsync();

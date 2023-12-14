@@ -1,6 +1,7 @@
 ﻿using GestionProyectos.Client.Services.Contrato;
 using GestionProyectos.Shared.Models;
 using System.Net.Http.Json;
+using static MudBlazor.CategoryTypes;
 
 namespace GestionProyectos.Client.Services.Implementacion
 {
@@ -57,16 +58,10 @@ namespace GestionProyectos.Client.Services.Implementacion
         {
             try
             {
-
-                //var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioDTO>>(
-                //    $"api/Usuario/Buscar/{usuario.NombreUsuario}/{usuario.Clave}");
-
-                var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioDTO>>($"api/Usuario/?NombreUsuario={usuario.NombreUsuario}&Clave?={usuario.Clave}");
+                var result = await _httpClient.GetFromJsonAsync<ResponseAPI<UsuarioDTO>>($"api/Usuario/?nombreUsuario={usuario.NombreUsuario}&Clave={usuario.Clave}");
 
 
                 SesionDTO sesion = new SesionDTO();
-
-
                 if (result!.EsCorrecto)
                 {
                     sesion.IdUsuario = result.Valor.IdUsuario;

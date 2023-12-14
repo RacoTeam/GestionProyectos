@@ -16,7 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace GestionProyectos.Server.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
 
@@ -36,7 +36,7 @@ namespace GestionProyectos.Server.Controllers
         public async Task<ActionResult> ListarUsuarios()
         {
             var responseApi = new ResponseAPI<List<UsuarioDTO>>();
-            var listaUsuariosDTO = new List<UsuarioDTO>(); 
+            var listaUsuariosDTO = new List<UsuarioDTO>();
             try
             {
                 var usuariosDb = await _dbContext.Usuarios.ToListAsync();
@@ -89,7 +89,7 @@ namespace GestionProyectos.Server.Controllers
                 if (dbUsuario != null)
                 {
                     dbUsuario.IdRolNavigation = await _dbContext.Rols.FirstOrDefaultAsync(r => r.IdRol == dbUsuario.IdRol);
-                    
+
                     dbUsuario.Proyectos = await _dbContext.Proyectos.Where(p => p.IdUsuario == dbUsuario.IdUsuario).ToListAsync();
                     foreach (var proyecto in dbUsuario.Proyectos)
                     {
@@ -201,37 +201,53 @@ namespace GestionProyectos.Server.Controllers
         public async Task<IActionResult> Buscar(string nombreUsuario, string Clave)
         {
             var responseApi = new ResponseAPI<UsuarioDTO>();
+            var usuarioDTO = new UsuarioDTO();
 
-            var miobjeto = await _dbContext.Usuarios
-                .FirstOrDefaultAsync(ob => ob.NombreUsuario == nombreUsuario && ob.Clave == Clave);
-
-            if (miobjeto == null)
+            try
             {
-                responseApi.EsCorrecto = false;
-                responseApi.Mensaje = "Usuario no encontrado";
-            }
-            else
-            {
+                var dbUsuario = await _dbContext.Usuarios.FirstOrDefaultAsync(f => f.NombreUsuario == nombreUsuario && f.Clave == Clave);
 
-                responseApi.EsCorrecto = true;
-                responseApi.Valor = new UsuarioDTO
+                if (dbUsuario != null)
                 {
-                    IdUsuario = miobjeto.IdUsuario,
-                    NombreUsuario = miobjeto.NombreUsuario,
-                    Clave = miobjeto.Clave,
-                    Nombre = miobjeto.Nombre,
-                    Apellido = miobjeto.Apellido,
-                    Dni = miobjeto.Dni,
-                    IdRol = miobjeto.IdRol,
-                    IdRolNavigation = null,
-                    Proyectos = null,
-                    UsuarioGrupos = null,
-                };
+                    dbUsuario.IdRolNavigation = await _dbContext.Rols.FirstOrDefaultAsync(r => r.IdRol == dbUsuario.IdRol);
 
+                    dbUsuario.Proyectos = await _dbContext.Proyectos.Where(p => p.IdUsuario == dbUsuario.IdUsuario).ToListAsync();
+                    foreach (var proyecto in dbUsuario.Proyectos)
+                    {
+                        proyecto.Grupos = null;
+                        proyecto.Tareas = null;
+                        proyecto.IdClienteNavigation = null;
+                        proyecto.IdUsuarioNavigation = null;
+                    }
+
+                    dbUsuario.UsuarioGrupos = await _dbContext.UsuarioGrupos.Where(g => g.IdUsuario == dbUsuario.IdUsuario).ToListAsync();
+                    foreach (var usuariogrupo in dbUsuario.UsuarioGrupos)
+                    {
+                        usuariogrupo.UsuarioGrupoTareas = null;
+                        usuariogrupo.IdUsuarioNavigation = null;
+                    }
+
+                    usuarioDTO = _mapper.Map<UsuarioDTO>(dbUsuario);
+
+                    responseApi.EsCorrecto = true;
+                    responseApi.Valor = usuarioDTO;
+                }
+                else
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "No encontrado";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
             }
 
             return Ok(responseApi);
-        }
 
+        }
     }
+
 }
