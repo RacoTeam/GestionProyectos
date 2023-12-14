@@ -1,6 +1,9 @@
 ﻿@page "/Proyectos"
 <PageTitle>Listado de Usuarios</PageTitle>
 
+@using GestionProyectos.Client.Extensions
+@attribute [DynamicNavMenu("Proyectos")]
+
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
@@ -18,7 +21,7 @@
 
 @attribute [Authorize(Roles = "Administrador")]
 
-<MudButton Href="/Proyectos/Test"
+<MudButton Href="/Proyectos/agregar/0"
            Variant="Variant.Filled"
            EndIcon="@Icons.Material.Filled.AddCircle"
            Color="Color.Primary" Class="mb-2">

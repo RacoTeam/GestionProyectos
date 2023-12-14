@@ -1,11 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @inject SweetAlertService Swal;
 @inject NavigationManager _navigationManager;
+@inject AuthenticationStateProvider autenticacionProvider;  
+
 @using GestionProyectos.Client.Extensions;
 @using Microsoft.AspNetCore.Components.Authorization;
 @using System.Security.Claims;
-@inject AuthenticationStateProvider autenticacionProvider;  
-
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -13,49 +13,46 @@
 
 <MudLayout>
     <MudAppBar>
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <AuthorizeView Roles="Administrador">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        </AuthorizeView>
         Sistema de Gestion de Proyectos
         <MudSpacer />
-         
 @*         <AuthorizeView Roles="Administrador"> *@
             
 @*             <NotAuthorized>
                 <MudLink Href="./Login" Typo="Typo.body2" Class="mud-theme-primary">Iniciar Sesion</MudLink>
             </NotAuthorized> *@
-
-            <AuthorizeView>
-            <Authorized>
-                <MudText Typo="Typo.h6" Class="px-4">@context.User.Claims.Where(c=>c.Type == ClaimTypes.Name).Select(c=>c.Value).SingleOrDefault()</MudText>
-                <MudLink Href="./Login" Typo="Typo.body2" Class="mud-theme-primary" @onclick="CerrarSesion">Cerrar Sesion</MudLink>
-            </Authorized>
-            </AuthorizeView>
-            
-                
-            
-@*         </AuthorizeView> *@
+        <AuthorizeView>
+        <Authorized>
+            <MudText Typo="Typo.h6" Class="px-4">@context.User.Claims.Where(c=>c.Type == ClaimTypes.Name).Select(c=>c.Value).SingleOrDefault()</MudText>
+            <MudLink Href="./Login" Typo="Typo.body2" Class="mud-theme-primary" @onclick="CerrarSesion">Cerrar Sesion</MudLink>
+        </Authorized>
+        </AuthorizeView>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen">
-        <MudPaper Width="250px" Class="py-3" Elevation="0">
-
-            <MudNavMenu>
+    <AuthorizeView Roles="Administrador"> 
+        <MudDrawer @bind-Open="@_drawerOpen">
+            <MudPaper Width="250px" Class="py-3" Elevation="0">
+                    @* <MudNavMenu>
                
-                <MudDivider Class="my-2" />
+                        <MudDivider Class="my-2" />
 
-                <MudNavLink Href="/">Inicio</MudNavLink>
-
-
-                 <AuthorizeView Roles="Administrador"> 
-                    <MudNavGroup Title="Usuarios" Expanded="true">
-                        <MudNavLink Href="/Usuarios/Listado">Listado</MudNavLink>
-                        <MudNavLink Href="/Usuarios/Grupos">Grupos de Usuario</MudNavLink>
-                    </MudNavGroup>
-                 </AuthorizeView> 
+                        <MudNavLink Href="/">Inicio</MudNavLink>
 
 
-                <MudNavLink Href="/about">About us</MudNavLink>
-            </MudNavMenu>
-        </MudPaper>
-    </MudDrawer>
+                            <MudNavGroup Title="Usuarios" Expanded="true">
+                                <MudNavLink Href="/Usuarios/Listado">Listado</MudNavLink>
+                                <MudNavLink Href="/Usuarios/Grupos">Grupos de Usuario</MudNavLink>
+                            </MudNavGroup>
+
+
+                        <MudNavLink Href="/about">About us</MudNavLink>
+                    </MudNavMenu> *@
+
+                    <DynamicNavMenu />
+            </MudPaper>
+        </MudDrawer>
+    </AuthorizeView>
     <MudMainContent MaxWidth="MaxWidth.Small">
         <MudContainer Class="mx-auto mt-16" >
                         @Body
