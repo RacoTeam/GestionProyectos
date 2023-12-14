@@ -1,0 +1,91 @@
+﻿@page "/Proyecto/delete/{proyectoId:int}"
+@inject HttpClient Http
+
+@using GestionProyectos.Client.Services.Contrato;
+@using GestionProyectos.Shared.Models;
+
+@inject NavigationManager NavigationManager
+
+@inject IProyectoService _proyectoServicio;
+
+<div class="container mt-6">
+    <div class="card">
+        <div class="card-header Title">
+            <h2 class="section-title">Eliminar Proyecto</h2>
+        </div>
+
+        <div class="card-body">
+            <div class="form-group">
+                <h4>¿Quieres eliminar el proyecto?</h4>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>IdProyecto</td>
+                            <td>@proyecto.IdProyecto</td>
+                        </tr>
+                        <tr>
+                            <td>Nombre</td>
+                            <td>@proyecto.Nombre</td>
+                        </tr>
+                        <tr>
+                            <td>Descripcion</td>
+                            <td>@proyecto.Descripcion</td>
+                        </tr>
+                        <tr>
+                            <td>FechaInicio</td>
+                            @* <td>@proyecto.FechaInicio</td> *@
+                        </tr>
+                        <tr>
+                            <td>FechaFin</td>
+                            @* <td>@proyecto.FechaInicio</td> *@
+                        </tr>
+                        <tr>
+                            <td>Cliente</td>
+                            <td>@proyecto.IdClienteNavigation.Nombre</td>
+                        </tr>
+                        <tr>
+                            <td>Responsable</td>
+                            <td>@proyecto.IdUsuario</td>
+                        </tr>
+                        <tr>
+@*                             @foreach (var grupo in proyecto.Grupos)
+                            {
+                                <td>Nombre Grupo:</td>
+                                <td>@grupo.Nombre</td>
+                                 <td>@grupo.</td> 
+                            } *@
+                        </tr>
+                       
+
+                    </tbody>
+                </table>
+                <input type="submit" value="Eliminar" @onclick="(async () => await RemoveProyecto(proyecto.IdProyecto))" class="btn btn-danger" />
+                <input type="submit" value="Cancelar" @onclick="(() => Cancel())" class="btn btn-warning" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@code {
+    [Parameter]
+    public int proyectoId { get; set; }
+    ProyectoDTO proyecto = new ProyectoDTO();
+    protected override async Task OnInitializedAsync()
+    {
+        proyecto = await _proyectoServicio.ObtenerProyecto(proyectoId);
+    }
+
+    protected async Task RemoveProyecto(int idProyecto)
+    {
+        await _proyectoServicio.EliminarProyecto(idProyecto);
+        NavigationManager.NavigateTo("/listado");
+    }
+
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/listado");
+    }
+}
