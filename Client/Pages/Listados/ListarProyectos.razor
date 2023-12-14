@@ -18,7 +18,7 @@
 
 @attribute [Authorize(Roles = "Administrador")]
 
-<MudButton Href="/Proyectos/Test"
+<MudButton Href="/Proyectos/agregar/0"
            Variant="Variant.Filled"
            EndIcon="@Icons.Material.Filled.AddCircle"
            Color="Color.Primary" Class="mb-2">
@@ -58,6 +58,7 @@
         <MudTd DataLabel="Fecha de Inicio">@context.FechaInicio</MudTd>
         <MudTd DataLabel="Fecha de Fin">@context.FechaFin</MudTd>
         <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarProyecto(context.IdProyecto)" /></MudTd>
+        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarProyecto(context.IdProyecto)" /></MudTd>
     </RowTemplate>
 
     <PagerContent>
@@ -104,5 +105,10 @@
     private void ModificarProyecto(int id)
     {
         _navManager.NavigateTo($"/Proyectos/modificar/{id}");
+    }
+
+    private void EliminarProyecto(int id)
+    {
+        _navManager.NavigateTo($"/Proyectos/eliminar/{id}");
     }
 }
