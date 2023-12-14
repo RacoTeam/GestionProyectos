@@ -15,7 +15,6 @@ namespace GestionProyectos.Client.Extensions
             _localStorageService = localStorageService;
         }
 
-
         //metodo el cual nos va a permitir guardar la informacion del usuario que ha iniciado sesion
         //vamos a guardar en localstorge y en la autorizacion
 

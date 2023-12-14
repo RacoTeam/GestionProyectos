@@ -20,7 +20,6 @@ var mapperConfiguration = new MapperConfiguration(configuration =>
     configuration.AddProfile(new AutomapperProfile());
 });
 
-
 builder.Services.AddCors(opciones =>
 {
     opciones.AddPolicy("nuevaPolitica", app =>
@@ -28,8 +27,6 @@ builder.Services.AddCors(opciones =>
         app.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
 });
-
-
 
 var mapper = mapperConfiguration.CreateMapper();
 builder.Services.AddSingleton(mapper);
@@ -48,9 +45,6 @@ else
     app.UseHsts();
 }
 
-
-
-
 app.UseCors("nuevaPolitica");
 
 app.UseHttpsRedirection();
@@ -59,7 +53,6 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 
 app.MapRazorPages();
 app.MapControllers();

@@ -1,4 +1,5 @@
-﻿@page "/Proyecto"
+﻿@page "/Proyectos/{action}/{IdProyecto:int}"
+
 <PageTitle>Proyecto</PageTitle>
 
 @using System.Text.RegularExpressions
@@ -23,11 +24,38 @@ if varAgregar then
 if modificar then
 <DynamicForm Model="@proyectoDTO" OnValidSubmit="Agregar" /> *@
 
+<div>
+    @variable
+</div>
+
 <DynamicForm Model="@proyectoDTO" OnValidSubmit="OnValidSubmit" />
 
 @code{
     private ProyectoDTO proyectoDTO = new ProyectoDTO();
     private SesionDTO sesionProyectoDTO = new SesionDTO();
+
+    [Parameter] public string Action { get; set; }
+    [Parameter] public int IdProyecto { get; set; }
+
+    string variable = "";
+
+    protected override void OnInitialized()
+    {
+        if (Action.Contains("agregar"))
+        {
+            variable = Action;
+        }
+        else if (Action.Contains("eliminar"))
+        {
+            variable = Action;
+        }
+        else if (Action.Contains("modificar"))
+        {
+            variable = Action;
+        }
+
+        base.OnInitialized();
+    }
 
     /*private MyModel model = new MyModel();
     
@@ -47,11 +75,6 @@ if modificar then
         [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
         public DateTime? DateOfBirth { get; set; }
     }*/
-
-    protected override async Task OnInitializedAsync()
-    {
-        proyectoDTO.Nombre = "Desarrollo de Script";
-    }
 
     private async void OnValidSubmit(EditContext context)
     {

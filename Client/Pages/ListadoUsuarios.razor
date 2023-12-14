@@ -14,9 +14,6 @@
 @inject HttpClient httpClient
 @inject ISnackbar Snackbar
 
-
-
-
 <MudButton Href="/Usuarios/Listado/Agregar"
            Variant="Variant.Filled"
            EndIcon="@Icons.Material.Filled.AddCircle"
@@ -132,6 +129,7 @@
         }
     </MudExpansionPanel>
 </MudExpansionPanels>
+
 @code {
     private List<string> editEvents = new();
     private bool dense = false;
