@@ -104,7 +104,7 @@ namespace GestionProyectos.Server.Controllers
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "No guardado";
+                    responseApi.Mensaje = "No se pudo guardar al cliente";
                 }
             }
             catch (Exception ex)
@@ -125,26 +125,31 @@ namespace GestionProyectos.Server.Controllers
 
             try
             {
-                var dbCliente = await _dbContext.Clientes.FirstOrDefaultAsync(f => f.IdCliente == idCliente);
-
-                if (dbCliente != null)
+                var dbProyecto = await _dbContext.Proyectos.Where(f => f.IdCliente == idCliente).ToListAsync();
+                if (!dbProyecto.Any())
                 {
-                    _dbContext.Clientes.Remove(dbCliente);
-                    await _dbContext.SaveChangesAsync();
+                    var dbCliente = await _dbContext.Clientes.FirstOrDefaultAsync(f => f.IdCliente == idCliente);
+                    if (dbCliente != null)
+                    {
+                        _dbContext.Clientes.Remove(dbCliente);
+                        await _dbContext.SaveChangesAsync();
 
 
-                    responseApi.EsCorrecto = true;
+                        responseApi.EsCorrecto = true;
+                    }
+                    else
+                    {
+                        responseApi.EsCorrecto = false;
+                        responseApi.Mensaje = "Cliente no encontrada";
+                    }
                 }
                 else
                 {
-                    responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "Cliente no encontrada";
+                    throw new Exception("Elimine los proyectos del cliente previamente");
                 }
-
             }
             catch (Exception ex)
             {
-
                 responseApi.EsCorrecto = false;
                 responseApi.Mensaje = ex.Message;
             }

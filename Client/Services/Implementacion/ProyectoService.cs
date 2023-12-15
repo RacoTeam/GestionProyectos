@@ -33,6 +33,9 @@ namespace GestionProyectos.Client.Services.Implementacion
 
         public async Task<int> AgregarProyecto(ProyectoDTO Proyecto)
         {
+            Proyecto.IdClienteNavigation = null;
+            Proyecto.IdUsuarioNavigation = null;
+
             var result = await _httpClient.PostAsJsonAsync("api/Proyecto", Proyecto);
             var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
 

@@ -19,7 +19,7 @@
 <EditForm Model="@inicioSesion" OnValidSubmit="OnValidSubmit" OnInvalidSubmit="OnInvalidSubmit" FormName="LoginForm">
 <DataAnnotationsValidator/>
     <MudGrid Class="justify-center">
-        <MudItem xs="12" sm="7">
+        <MudItem xs="12">
             <MudCard>
                 <MudCardContent>
                     <MudTextField T="string" Label="Usuario" @bind-Value="inicioSesion.Usuario" For="@(() => inicioSesion.Usuario)" />
@@ -27,20 +27,16 @@
                                   InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password" />
                 </MudCardContent>
                 <MudCardActions>
-                    <MudCheckBox T="bool"  Label="Recordarme" @bind-Value="recordar"/>
+                    @* <MudCheckBox T="bool"  Label="Recordarme" @bind-Value="recordar"/> *@
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Iniciar Sesion</MudButton>
                 </MudCardActions>
-                @* @if (success)
-                {
-                    <MudText Color="Color.Success">Success</MudText>
-                }
-                else
-                {
-                    <MudText Color="@Color.Error">
-                        <ValidationSummary />
-                    </MudText>
-                } *@
             </MudCard>
+        </MudItem>
+        <MudItem xs="12" Class="text-center">
+            @if (loader)
+            {
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            }
         </MudItem>
     </MudGrid>
 </EditForm>
@@ -51,6 +47,8 @@
 
     bool success = false;
     bool recordar = false;
+
+    bool loader = false;
 
     public class InicioSesion
     {
@@ -94,6 +92,7 @@
         // sesionUsuario.NombreCompleto = "Profe";
         // sesionUsuario.IdUsuario = 11;
         success = true;
+        loader = true;
         StateHasChanged();
 
         try
@@ -120,36 +119,7 @@
             Snackbar.Add("Usuario y/o contraseña incorrectos", Severity.Error);
         }
 
-        // try
-        // {
-        //     var response = await _usuarioServicio.Buscar(inicioSesion.Usuario, inicioSesion.Clave);
-        // }
-        // catch
-        // {
-        //     // Si no encuentra al usuario:
-        //     Snackbar.Add("No se encuentra al usuario, registrese y vuelva a intentar.", Severity.Error);
-        // }
-
-        // // Si se encuentra al usuario:
-
-        // var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-        // await autenticacionExt.ActualizarEstadoAutenticacion(response);
-
-        // if (response.Rol.ToLower() == "administrador")
-        // {
-        //     //toastService.ShowSuccess("Inicio exitoso.");
-        //     _navServicio.NavigateTo("/Usuarios/Listado");
-        //     Snackbar.Add("Inicio Exitoso", Severity.Info);
-        // }
-        // if (!(response.Rol.ToLower() == "administrador"))
-        // {
-        //     _navServicio.NavigateTo("/");
-        //     Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //     //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
-        // }
-
-        //await sessionStorage.SetItemAsync("id", usuario.Id);
-        //await JsRuntime.InvokeVoidAsync("location.reload");
+        loader = false;
 }
     private void OnInvalidSubmit(EditContext context)
     {

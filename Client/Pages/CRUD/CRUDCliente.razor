@@ -1,0 +1,286 @@
+﻿@page "/Clientes/{action}/{IdCliente:int}"
+
+<PageTitle>Cliente</PageTitle>
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using GestionProyectos.Shared.Models;
+@using GestionProyectos.Client.Services.Contrato;
+
+@inject IClienteService _clienteServicio;
+@inject IUsuarioService _usuarioServicio;
+@inject NavigationManager _navManager;
+@inject ISnackbar Snackbar;
+
+@using GestionProyectos.Client.Shared.MultiSelectAutoComplete;
+
+@if (Action.ToLower().Contains("agregar"))
+{
+    <EditForm Model="@clienteDTO" OnSubmit="OnSubmitCliente" FormName="AgregarClienteForm">
+    <DataAnnotationsValidator/>
+    <MudGrid Justify="Justify.Center">
+        <MudItem xs="12" sm="7">
+            <MudPaper Class="pa-4">
+                <MudStack Spacing="3">
+                    <MudText Typo="Typo.h4">Agregar Cliente</MudText>
+                    <MudItem>
+                        <MudTextField T="string" Label="Nombre"  @bind-Value="clienteDTO.Nombre" For="@(() => clienteDTO.Nombre)" Variant="Variant.Outlined" />
+                    </MudItem>
+
+                    <MudCardActions>
+                        <MudButton ButtonType="ButtonType.Button" Href="/Clientes/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                        <MudButton ButtonType="ButtonType.Submit" Disabled="@_processing" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                            @if (_processing)
+                            {
+                                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                <MudText Class="ms-2">Procesando</MudText>
+                            }
+                            else
+                            {
+                                    <MudText>Agregar Cliente</MudText>
+                            }
+                        </MudButton>
+                    </MudCardActions>
+                </MudStack>
+            </MudPaper>
+                @* <ValidationSummary /> *@
+        </MudItem>
+    </MudGrid>
+    </EditForm>
+}
+
+@if (Action.ToLower().Contains("modificar"))
+{
+    <EditForm Model="@clienteDTO" OnSubmit="OnSubmitCliente" FormName="ModificarClienteForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Modificar Cliente</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="clienteDTO.Nombre" For="@(() => clienteDTO.Nombre)" Disabled="@_loader" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Clientes/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Modificar Cliente</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+
+@if (Action.ToLower().Contains("eliminar"))
+{
+    <EditForm Model="@clienteDTO" OnSubmit="OnSubmitCliente" FormName="ModificarClienteForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Eliminar Cliente</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="clienteDTO.Nombre" For="@(() => clienteDTO.Nombre)" Disabled="@_loader" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Clientes/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Modificar Cliente</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+
+@* <MultiSelectAutoComplete T="TestItem" @bind-Values="SelectedGrupos"
+                         SearchFunc="MySearchFunc"
+                         GetIDFunc="c => c.Id" GetNameFunc="c => c.DisplayName" /> *@
+
+@code{
+    private ClienteDTO clienteDTO = new ClienteDTO();
+
+    [Parameter] public string Action { get; set; }
+    [Parameter] public int IdCliente { get; set; } = 0;
+
+    string variable = "";
+
+    private bool _processing = false;
+
+    private bool _loader = false;
+
+    private List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
+    private List<ClienteDTO> listaClientes = new List<ClienteDTO>();
+
+    private async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string value)
+    {
+        await Task.Delay(5);
+        return string.IsNullOrEmpty(value) ? listaUsuarios : listaUsuarios.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase) || u.Apellido.Contains(value, StringComparison.OrdinalIgnoreCase) || u.IdRolNavigation.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<ClienteDTO>> SearchClientes(string value)
+    {
+        await Task.Delay(5);
+        return string.IsNullOrEmpty(value) ? listaClientes : listaClientes.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    protected async override void OnInitialized()
+    {
+        if (Action.Contains("agregar") || Action.Contains("modificar"))
+        {
+            _loader = true;
+            try
+            {
+                listaUsuarios = await _usuarioServicio.ListarUsuarios();
+            }
+            catch
+            {
+                Snackbar.Add("No se pudieron obtener usuarios", Severity.Error);
+            }
+
+            try
+            {
+                listaClientes = await _clienteServicio.ListarClientes();
+            }
+            catch
+            {
+                Snackbar.Add("No se pudieron obtener clientes", Severity.Error);
+            }
+
+            if (Action.Contains("modificar"))
+            {
+                try
+                {
+                    clienteDTO = await _clienteServicio.ObtenerCliente(IdCliente);
+                    _loader = false;
+
+                    StateHasChanged();
+                }
+                catch
+                {
+                    Snackbar.Add("No se logró obtener el cliente", Severity.Error);
+                    _navManager.NavigateTo("/clientes/");
+                }
+            }
+        }
+        else if (Action.Contains("eliminar"))
+        {
+            variable = Action;
+        }
+
+        base.OnInitialized();
+    }
+
+    private async void Agregar()
+    {
+        try
+        {
+            var response = await _clienteServicio.AgregarCliente(clienteDTO);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se agregó el cliente", Severity.Success);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("No se pudo agregar el cliente", Severity.Error);
+        }
+    }
+
+    void OnSubmitCliente(EditContext editContext)
+    {
+        if (editContext.Validate())
+        {
+            Agregar();
+        }
+        else
+        {
+            Snackbar.Add("Chequee todos los campos", Severity.Warning);
+        }
+    }
+
+    private async void Modificar()
+    {
+        try
+        {
+            // var response = await _clienteServicio.ModificarCliente(clienteDTO);
+            Console.WriteLine("Se intenta modificar xd");
+        }
+        catch
+        {
+            Snackbar.Add("No se pudo agregar el cliente", Severity.Error);
+        }
+    }
+
+    private async void Eliminar()
+    {
+        try
+        {
+            var response = await _clienteServicio.EliminarCliente(clienteDTO.IdCliente);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    /*private MyModel model = new MyModel();
+    
+    [RenderValidationSummary()]
+    [RenderFluentValidationValidator]
+    public class MyModel
+    {
+        [RenderMudTextField()]
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        public string FirstName { get; set; }
+        
+        [RenderMudTextField(Placeholder = "enter something")]
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        public string LastName { get; set; }
+
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
+        public DateTime? DateOfBirth { get; set; }
+    }*/
+}
