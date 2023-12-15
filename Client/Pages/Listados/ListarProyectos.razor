@@ -43,7 +43,7 @@
         <col />
         <col />
         <col style="width:50px;" />
-        <col style="width:50px;" />
+        <col style="width:1000px;" />
     </ColGroup>
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<ProyectoDTO, object>(x=>x.IdProyecto)">ID</MudTableSortLabel></MudTh>
@@ -52,7 +52,7 @@
         <MudTh><MudTableSortLabel SortBy="new Func<ProyectoDTO, object>(x=>x.IdClienteNavigation.Nombre)">Cliente</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<ProyectoDTO, object>(x=>x.FechaInicio)">Fecha de Inicio</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<ProyectoDTO, object>(x=>x.FechaFin)">Fecha de Fin</MudTableSortLabel></MudTh>
-        <MudTh></MudTh>
+        <MudTh>Acciones</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="ID">@context.IdProyecto</MudTd>
@@ -61,8 +61,12 @@
         <MudTd DataLabel="Cliente">@context.IdClienteNavigation.Nombre</MudTd>
         <MudTd DataLabel="Fecha de Inicio">@context.FechaInicio</MudTd>
         <MudTd DataLabel="Fecha de Fin">@context.FechaFin</MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarProyecto(context.IdProyecto)" /></MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarProyecto(context.IdProyecto)" /></MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarProyecto(context.IdProyecto)" />
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarProyecto(context.IdProyecto)" />
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Info" Class="pa-0" Href=@($"/Tareas/{context.IdProyecto}") />
+        </MudTd>
+      
     </RowTemplate>
 
     <PagerContent>
