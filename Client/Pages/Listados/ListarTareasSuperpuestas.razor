@@ -75,29 +75,36 @@
                 <MudTd DataLabel="Avance">@context.Avance</MudTd>
                 <MudTd DataLabel="Recursos">
 
-            @if (RecursoDTOs != null)
-            {
-                var recursoGrupo = RecursoDTOs
-                .Where(r => r.IdTarea == context.IdTarea)
-                .Select(r => r.Nombre)
-                .ToList();
-
-                if (recursoGrupo.Any())
+                @if (true)
                 {
-                    foreach (var nombreRecurso in recursoGrupo)
+                    Console.WriteLine(context.IdTarea);
+                    Console.WriteLine(RecursoDTOs.Any());
+
+                    if (RecursoDTOs != null)
                     {
-                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" Class="me-1">@($"{nombreRecurso}")</MudButton>
+                        var recursoGrupo = RecursoDTOs
+                        .Where(r => r.IdTarea == context.IdTarea)
+                        .Select(r => r.Nombre)
+                        .ToList();
+
+                        if (recursoGrupo.Any())
+                        {
+                            foreach (var nombreRecurso in recursoGrupo)
+                            {
+                                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" Class="me-1">@($"{nombreRecurso}")</MudButton>
+                            }
+
+                        }
+                        else
+                        {
+                            <span>No hay recursos asignados</span>
+                        }
                     }
                 }
                 else
                 {
-                    <span>No hay recursos asignados</span>
+                    <span>No hay datos de recursos</span>
                 }
-            }
-            else
-            {
-                <span>No hay datos de recursos</span>
-            }
                 </MudTd>
                 <MudTd DataLabel="Fecha de Inicio">@context.FechaInicio</MudTd>
                 <MudTd DataLabel="Fecha de Fin">@context.FechaFin</MudTd>
@@ -106,7 +113,7 @@
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarTarea(context.IdTarea)" />
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarTarea(context.IdTarea)" />
                 </MudTd>
- 
+ }
             </RowTemplate>
 
             <PagerContent>
@@ -162,8 +169,6 @@
 
 
         // RecursoDTOs = await _recursoServicio.ListarRecurso();
-
-        TareaDTOs = await _tareaServicio.ListarTareas();
 
         tareasSuperpuestas = ObtenerTareasSuperpuestas();
         Console.WriteLine(tareasSuperpuestas);
