@@ -5,150 +5,266 @@
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
-@using CG.Blazor.Forms
 @using CurrieTechnologies.Razor.SweetAlert2;
 @using GestionProyectos.Shared.Models;
-@using Microsoft.AspNetCore.Components.Authorization
-@using GestionProyectos.Client.Extensions;
 @using GestionProyectos.Client.Services.Contrato;
 
 @inject IRecursoService _recursoServicio;
-@inject NavigationManager _navServicio;
+@inject NavigationManager _navManager;
 @inject ISnackbar Snackbar;
-@inject AuthenticationStateProvider autenticacionProvider;
-@inject SweetAlertService Swal;
-@* 
-if varAgregar then
-<DynamicForm Model="@RecursoDTO" OnValidSubmit="Agregar" />
 
-if modificar then
-<DynamicForm Model="@RecursoDTO" OnValidSubmit="Agregar" /> *@
+@using GestionProyectos.Client.Shared.MultiSelectAutoComplete;
 
-<div>
-    @variable
-</div>
+@if (Action.ToLower().Contains("agregar"))
+{
+    <EditForm Model="@RecursoDTOs" OnSubmit="OnSubmitRecurso" FormName="AgregarRecursoForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Agregar Recurso</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="RecursoDTOs.Nombre" For="@(() => RecursoDTOs.Nombre)" Variant="Variant.Outlined" />
+                        </MudItem>
+                         <MudItem>
+                            <MudTextField T="double?" Label="CostoDia" @bind-Value="RecursoDTOs.CostoDia" For="@(() => RecursoDTOs.CostoDia)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField T="string" Label="Tipo" @bind-Value="RecursoDTOs.Tipo" For="@(() => RecursoDTOs.Tipo)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField T="int?" Label="IdTarea" @bind-Value="RecursoDTOs.IdTarea" For="@(() => RecursoDTOs.IdTarea)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-<DynamicForm Model="@RecursoDTO" OnValidSubmit="OnValidSubmit" />
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Recursos/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@_processing" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Agregar Recurso</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                 <ValidationSummary /> 
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
 
-@code{
-    private RecursoDTO RecursoDTO = new RecursoDTO();
-    private SesionDTO sesionRecursoDTO = new SesionDTO();
+@if (Action.ToLower().Contains("modificar"))
+{
+    <EditForm Model="@RecursoDTOs" OnSubmit="OnSubmitRecurso" FormName="ModificarRecursoForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Modificar Recurso</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="RecursoDTOs.Nombre" For="@(() => RecursoDTOs.Nombre)" Disabled="@_loader" Variant="Variant.Outlined" />
+                        </MudItem>
+                         <MudItem>
+                            <MudTextField T="double?" Label="CostoDia" @bind-Value="RecursoDTOs.CostoDia" For="@(() => RecursoDTOs.CostoDia)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField T="string" Label="Tipo" @bind-Value="RecursoDTOs.Tipo" For="@(() => RecursoDTOs.Tipo)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField T="int?" Label="IdTarea" @bind-Value="RecursoDTOs.IdTarea" For="@(() => RecursoDTOs.IdTarea)" Variant="Variant.Outlined" />
+                        </MudItem>
+
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Recursos/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.EditNote" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Modificar Recurso</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+
+@if (Action.ToLower().Contains("eliminar"))
+{
+    <EditForm Model="@RecursoDTOs" OnSubmit="OnSubmitRecurso" FormName="ModificarRecursoForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Eliminar Recurso</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="RecursoDTOs.Nombre" For="@(() => RecursoDTOs.Nombre)" ReadOnly="true" Variant="Variant.Outlined" />
+                        </MudItem>
+                         <MudItem>
+                            <MudTextField T="double?" Label="CostoDia" @bind-Value="RecursoDTOs.CostoDia" For="@(() => RecursoDTOs.CostoDia)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField T="string" Label="Tipo" @bind-Value="RecursoDTOs.Tipo" For="@(() => RecursoDTOs.Tipo)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField T="int?" Label="IdTarea" @bind-Value="RecursoDTOs.IdTarea" For="@(() => RecursoDTOs.IdTarea)" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Eliminar Recurso</MudText>
+                                }
+                            </MudButton>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Recursos/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Info" Class="ml-auto">Cancelar</MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+
+@* <MultiSelectAutoComplete T="TestItem" @bind-Values="SelectedGrupos"
+                         SearchFunc="MySearchFunc"
+                         GetIDFunc="c => c.Id" GetNameFunc="c => c.DisplayName" /> *@
+
+@code {
+    private RecursoDTO RecursoDTOs = new RecursoDTO();
 
     [Parameter] public string Action { get; set; }
-    [Parameter] public int IdRecurso { get; set; }
+    [Parameter] public int IdRecurso { get; set; } = 0;
 
     string variable = "";
 
-    protected override void OnInitialized()
+    private bool _processing = false;
+
+    private bool _loader = false;
+
+    private List<RecursoDTO> listaRecursos = new List<RecursoDTO>();
+
+
+    protected async override void OnInitialized()
     {
-        if (Action.Contains("agregar"))
+        _loader = true;
+        if (Action.Contains("eliminar") || Action.Contains("modificar"))
         {
-            variable = Action;
-        }
-        else if (Action.Contains("eliminar"))
-        {
-            variable = Action;
-        }
-        else if (Action.Contains("modificar"))
-        {
-            variable = Action;
+            try
+            {
+                RecursoDTOs = await _recursoServicio.ObtenerRecurso(IdRecurso);
+                _loader = false;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+                _navManager.NavigateTo("/Recursos/");
+            }
         }
 
         base.OnInitialized();
     }
 
-    /*private MyModel model = new MyModel();
-    
-    [RenderValidationSummary()]
-    [RenderFluentValidationValidator]
-    public class MyModel
+    void OnSubmitRecurso(EditContext editContext)
     {
-        [RenderMudTextField()]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string FirstName { get; set; }
-        
-        [RenderMudTextField(Placeholder = "enter something")]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string LastName { get; set; }
+        if (editContext.Validate())
+        {
+            if (Action.ToLower().Contains("agregar")) Agregar();
+            else if (Action.ToLower().Contains("modificar")) Modificar();
+            else if (Action.ToLower().Contains("eliminar")) Eliminar();
+        }
+        else
+        {
+            Snackbar.Add("Chequeé todos los campos", Severity.Warning);
+        }
+    }
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
-        public DateTime? DateOfBirth { get; set; }
-    }*/
-
-    private async void OnValidSubmit(EditContext context)
+    private async void Agregar()
     {
-        Console.WriteLine("Correcto");
-        // // Recurso.NombreRecurso = "Profe";
-        // // Recurso.Clave = "1234";
-        // // Recurso.IdRecurso = 4;
-        // // Recurso.IdRecurso = 4;
+        try
+        {
+            var response = await _recursoServicio.AgregarRecurso(RecursoDTOs);
 
-        // // sesionRecurso.Recurso = "Administrador";
-        // // sesionRecurso.NombreCompleto = "Profe";
-        // // sesionRecurso.IdRecurso = 11;
+            if (response != null)
+            {
+                Snackbar.Add("Se agregó el Recurso", Severity.Success);
+                _navManager.NavigateTo("/Recursos/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
 
-        // if (RecursoDTO.NombreRecurso != null && RecursoDTO.Clave != null)
-        // {
-        //     var response = await _RecursoServicio.Buscar(RecursoDTO.Nombre, RecursoDTO.Clave);
-        //     if (response is null)
-        //     {
-        //         Snackbar.Add("No se encuentra al Recurso, registrese y vuelva a intentar.", Severity.Error);
-        //     }
-        //     else
-        //     {
-        //         var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-        //         await autenticacionExt.ActualizarEstadoAutenticacion(response);
+    private async void Modificar()
+    {
+        try
+        {
+            var response = await _recursoServicio.AgregarModificarRecurso(IdRecurso, RecursoDTOs);
 
-        //         if (response.Recurso.ToLower() == "administrador")
-        //         {
-        //             //toastService.ShowSuccess("Inicio exitoso.");
-        //             _navServicio.NavigateTo("/Recursos/Listado");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //         }
-        //         if (!(response.Recurso.ToLower() == "administrador"))
-        //         {
-        //             _navServicio.NavigateTo("/");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //             //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
-        //         }
+            if (response != null)
+            {
+                Snackbar.Add("Se modificó el Recurso", Severity.Success);
+                _navManager.NavigateTo("/Recursos/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"No se pudo modificar el Recurso: {ex.Message}", Severity.Error);
+        }
+    }
 
-        //         //await sessionStorage.SetItemAsync("id", Recurso.Id);
-        //         //await JsRuntime.InvokeVoidAsync("location.reload");
-        //     }
-        // }
+    private async void Eliminar()
+    {
+        try
+        {
+            var response = await _recursoServicio.EliminarRecurso(RecursoDTOs.IdRecurso);
+            if (response)
+            {
+                Snackbar.Add("Se eliminó el Recurso", Severity.Success);
+                _navManager.NavigateTo("/Recursos/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"No se pudo eliminar el Recurso: {ex.Message}", Severity.Error);
+        }
     }
 }
-
-
-@* @code {
-    bool success;
-    string[] errors = { };
-    MudTextField<string> pwField1;
-    MudForm form;
-
-    private IEnumerable<string> PasswordStrength(string pw)
-    {
-        if (string.IsNullOrWhiteSpace(pw))
-        {
-            yield return "Password is required!";
-            yield break;
-        }
-        if (pw.Length < 8)
-            yield return "Password must be at least of length 8";
-        if (!Regex.IsMatch(pw, @"[A-Z]"))
-            yield return "Password must contain at least one capital letter";
-        if (!Regex.IsMatch(pw, @"[a-z]"))
-            yield return "Password must contain at least one lowercase letter";
-        if (!Regex.IsMatch(pw, @"[0-9]"))
-            yield return "Password must contain at least one digit";
-    }
-
-    private string PasswordMatch(string arg)
-    {
-        if (pwField1.Value != arg)
-            return "Passwords don't match";
-        return null;
-    }
-
-} *@

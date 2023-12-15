@@ -150,9 +150,10 @@ namespace GestionProyectos.Server.Controllers
                 _mapper.Map(recursoDTO, dbRecurso);
 
                 // Clear related collections to avoid unintended updates
-                dbRecurso.IdTareaNavigation = null;
 
-                _dbContext.Entry(dbRecurso).State = EntityState.Modified;
+                //dbRecurso.IdTareaNavigation = null;
+
+                _dbContext.Entry(dbRecurso).State = EntityState.Modified; //Nullea IdTarea cuando modificas con el mismo valor
                 await _dbContext.SaveChangesAsync();
 
                 responseApi.EsCorrecto = true;
