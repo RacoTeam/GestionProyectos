@@ -42,7 +42,16 @@
                     </MudItem>
                     <MudItem xs="6">             
                         <MudText Typo="Typo.h6">Responsable</MudText>
-                        <MudText>@($"{proyectoDetalle.IdUsuarioNavigation.Nombre} {proyectoDetalle.IdUsuarioNavigation.Apellido}")</MudText>
+                        <MudText>
+                        @if (proyectoDetalle.IdUsuarioNavigation != null)
+                        {
+                            @($"{proyectoDetalle.IdUsuarioNavigation.Nombre} {proyectoDetalle.IdUsuarioNavigation.Apellido}");
+                        }
+                        else
+                        {
+                            <span>No asignado</span>
+                        }
+                        </MudText>
                         <MudText Typo="Typo.h6">Fecha de Inicio</MudText>
                         <MudText>@proyectoDetalle.FechaInicio</MudText>
                         <MudText Typo="Typo.h6">Fecha de Finalizacion</MudText>
