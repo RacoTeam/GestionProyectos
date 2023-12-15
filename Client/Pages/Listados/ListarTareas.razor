@@ -94,7 +94,7 @@
                 <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaInicio)">Fecha de Inicio</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaFin)">Fecha de Fin</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.IdProyecto)">Id Proyecto</MudTableSortLabel></MudTh>
-                <MudTh></MudTh>
+                <MudTh>Acciones</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="ID">@context.IdTarea</MudTd>
@@ -104,8 +104,11 @@
                 <MudTd DataLabel="Fecha de Inicio">@context.FechaInicio</MudTd>
                 <MudTd DataLabel="Fecha de Fin">@context.FechaFin</MudTd>
                 <MudTd DataLabel="IdProyecto">@context.IdProyecto</MudTd>
-                <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarTarea(context.IdTarea)" /></MudTd>
-                <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarTarea(context.IdTarea)" /></MudTd>
+                <MudTd>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarTarea(context.IdTarea)" />
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarTarea(context.IdTarea)" />
+                </MudTd>
+ 
             </RowTemplate>
 
             <PagerContent>

@@ -41,22 +41,23 @@
         <col/>
         <col/>
         <col style="width:50px;" />
-        <col style="width:50px;" />
     </ColGroup>
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<RecursoDTO, object>(x=>x.IdRecurso)">ID</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<RecursoDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<RecursoDTO, object>(x=>x.CostoDia)">Costo por Dia</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<RecursoDTO, object>(x=>x.Tipo)">Tipo</MudTableSortLabel></MudTh>
-        <MudTh></MudTh>
+        <MudTh>Acciones</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="ID">@context.IdRecurso</MudTd>
         <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
         <MudTd DataLabel="CostoDia">@context.CostoDia</MudTd>
         <MudTd DataLabel="Tipo">@context.Tipo</MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarRecurso(context.IdRecurso)" /></MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarRecurso(context.IdRecurso)" /></MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarRecurso(context.IdRecurso)" />
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarRecurso(context.IdRecurso)" />
+        </MudTd>
     </RowTemplate>
 
     <PagerContent>

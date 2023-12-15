@@ -39,18 +39,19 @@
         <col style="width:50px;" />
         <col />
         <col style="width:50px;" />
-        <col style="width:50px;" />
     </ColGroup>
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<ClienteDTO, object>(x=>x.IdCliente)">ID</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<ClienteDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
-        <MudTh></MudTh>
+        <MudTh>Acciones</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="ID">@context.IdCliente</MudTd>
         <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarCliente(context.IdCliente)" /></MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarCliente(context.IdCliente)" /></MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarCliente(context.IdCliente)" />
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarCliente(context.IdCliente)" />
+        </MudTd>
     </RowTemplate>
 
     <PagerContent>
