@@ -26,34 +26,34 @@
                     <MudStack Spacing="3">
                         <MudText Typo="Typo.h4">Agregar Tarea</MudText>
                         <MudItem>
-                            <MudTextField T="string" Label="Nombre" @bind-Value="tareaDTO.Nombre" For="@(() => tareaDTO.Nombre)" Variant="Variant.Outlined" />
+                            <MudTextField T="string" Label="Nombre" Disabled="@_loader" @bind-Value="tareaDTO.Nombre" For="@(() => tareaDTO.Nombre)" Variant="Variant.Outlined" />
                         </MudItem>
                         <MudItem>
-                            <MudTextField T="string" Label="Descripción" @bind-Value="tareaDTO.Descripcion" For="@(() => tareaDTO.Descripcion)" Variant="Variant.Outlined" Lines="3" />
+                            <MudTextField T="string" Label="Descripción" Disabled="@_loader" @bind-Value="tareaDTO.Descripcion" For="@(() => tareaDTO.Descripcion)" Variant="Variant.Outlined" Lines="3" />
                         </MudItem>
 
                         <MudGrid>
                             <MudItem xs="6">
-                                <MudDatePicker Label="Fecha de Inicio" Editable="true" @bind-Date="tareaDTO.FechaInicio" For="@(() => tareaDTO.FechaInicio)" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
+                                <MudDatePicker Label="Fecha de Inicio" Editable="true" Disabled="@_loader" @bind-Date="tareaDTO.FechaInicio" For="@(() => tareaDTO.FechaInicio)" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
                             </MudItem>
                             <MudItem xs="6">
-                                <MudDatePicker Label="Fecha de Finalización" Editable="true" @bind-Date="tareaDTO.FechaFin" For="@(() => tareaDTO.FechaFin)" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
+                                <MudDatePicker Label="Fecha de Finalización" Editable="true" Disabled="@_loader" @bind-Date="tareaDTO.FechaFin" For="@(() => tareaDTO.FechaFin)" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
                             </MudItem>
                         </MudGrid>
 
                         <MudItem>
-                            <MudTextField T="double?" Label="Avance" @bind-Value="tareaDTO.Avance" For="@(() => tareaDTO.Avance)" Variant="Variant.Outlined" />
+                            <MudTextField T="double?" Label="Avance" @bind-Value="tareaDTO.Avance" Disabled="@_loader" For="@(() => tareaDTO.Avance)" Variant="Variant.Outlined" />
                         </MudItem>
 
-                        <MudItem>
-                            <MultiSelectAutoComplete T="UsuarioDTO" @bind-Values="usuariosSeleccionados"
-                                                     SearchFunc="SearchUsuarios"
-                                                     GetIDFunc="c => c.IdUsuario" GetNameFunc="c => c.Nombre" />
-                        </MudItem>
+                        <MultiSelectAutoComplete T="UsuarioDTO" @bind-Values="usuariosSeleccionados"
+                                                     SearchFunc="SearchUsuarios" Label= "Asignar usuarios"
+                                                     GetIDFunc="c => c.IdUsuario"
+                                                 GetNameFunc="c => (c.Nombre, c.Apellido)"
+                                                 Disabled="@_loader"/>
 
                         <MudCardActions>
                             <MudButton ButtonType="ButtonType.Button" Href="/Tareas/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
-                            <MudButton ButtonType="ButtonType.Submit" Disabled="@_processing" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_processing || _loader)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
                                 @if (_processing)
                                 {
                                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -67,7 +67,12 @@
                         </MudCardActions>
                     </MudStack>
                 </MudPaper>
-                @* <ValidationSummary /> *@
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
             </MudItem>
         </MudGrid>
     </EditForm>
@@ -192,53 +197,68 @@
     private bool _errorUsuario = false;
     private bool _errorCliente = false;
 
+    int? idProyectoDeTarea;
+
     private List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
     public IEnumerable<UsuarioDTO> usuariosSeleccionados = new List<UsuarioDTO>();
 
-    private List<UsuarioGrupoDTO> listaUsuariosGrupos = new List<UsuarioGrupoDTO>();
+    public IEnumerable<UsuarioDTO> usuariosRelacionados = new List<UsuarioDTO>();
 
     public async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string search)
     {
-        if (string.IsNullOrEmpty(search))
+        if (string.IsNullOrWhiteSpace(search))
         {
-            return listaUsuarios;
+            return usuariosRelacionados;
         }
-        return await Task.FromResult(listaUsuarios.Where(u => u.Nombre.Contains(search, StringComparison.OrdinalIgnoreCase) || u.Apellido.Contains(search, StringComparison.OrdinalIgnoreCase) || u.IdRolNavigation.Nombre.Contains(search, StringComparison.OrdinalIgnoreCase)));
+
+        return await Task.FromResult(usuariosRelacionados.Where(u => u.NombreUsuario.Contains(search, StringComparison.OrdinalIgnoreCase)));
     }
 
     protected async override void OnInitialized()
     {
         _loader = true;
-        
-        tareaDTO = await _tareaServicio.ObtenerTarea(IdTarea);
-        listaUsuarios = await _usuarioServicio.ListarUsuarios();
-        listaUsuariosGrupos = await _usuariogrupoServicio.ListarUsuarioGrupos();
 
-        int? idProyectoDeTarea = tareaDTO.IdProyecto;
-
-        // 1. Filtra los UsuarioGrupos por el IdProyecto
-        var usuarioGruposEnProyecto = listaUsuariosGrupos.Where(ug => ug.IdProyecto == idProyectoDeTarea);
-
-        // 2. Extrae los IdUsuario de los UsuarioGrupoDTO filtrados
-        var idUsuariosEnProyecto = usuarioGruposEnProyecto.Select(ug => ug.IdUsuario).ToList();
-
-        // 3. Filtra la lista de usuarios por los IdUsuario obtenidos
-        var usuariosRelacionados = listaUsuarios.Where(u => idUsuariosEnProyecto.Contains(u.IdUsuario)).ToList();
-
-        if (Action.Contains("eliminar") || Action.Contains("modificar"))
+        if (Action.Contains("agregar"))
+        {
+            tareaDTO.IdProyecto = IdProyecto;
+        }
+        else if (Action.Contains("eliminar") || Action.Contains("modificar"))
         {
             try
             {
-
-                _loader = false;
-
-                StateHasChanged();
+                tareaDTO = await _tareaServicio.ObtenerTarea(IdTarea);
+                idProyectoDeTarea = tareaDTO.IdProyecto;
             }
             catch (Exception ex)
             {
                 Snackbar.Add(ex.Message, Severity.Error);
                 _navManager.NavigateTo("/clientes/");
             }
+        }
+
+        idProyectoDeTarea = tareaDTO.IdProyecto;
+
+        try
+        {
+            var listaUsuarios = await _usuarioServicio.ListarUsuarios();
+            var listaUsuariosGrupos = await _usuariogrupoServicio.ListarUsuarioGrupos();
+
+            // 1. Filtra los UsuarioGrupos por el IdProyecto
+            var usuarioGruposEnProyecto = listaUsuariosGrupos.Where(ug => ug.IdProyecto == idProyectoDeTarea).ToList();
+
+            // 2. Extrae los IdUsuario de los UsuarioGrupoDTO filtrados
+            var idUsuariosEnProyecto = usuarioGruposEnProyecto.Select(ug => ug.IdUsuario).ToList();
+
+            // 3. Filtra la lista de usuarios por los IdUsuario obtenidos
+            usuariosRelacionados = listaUsuarios.Where(u => idUsuariosEnProyecto.Contains(u.IdUsuario)).ToList();
+            _loader = false;
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+            _navManager.NavigateTo("/clientes/");
         }
 
         base.OnInitialized();
@@ -263,6 +283,20 @@
     {
         try
         {
+            // Crear una lista de UsuarioGrupoTareaDTO a partir de los usuarios seleccionados
+            var usuariosGrupoTarea = usuariosSeleccionados
+                .Select(ugt => new UsuarioGrupoTareaDTO
+                    {
+                        IdUsuario = ugt.IdUsuario,
+                        IdProyecto = IdProyecto, //IdProyecto declarado en esta pagina
+                        IdTarea = IdTarea, //IdTarea declarado en esta pagina
+                    })
+                .ToList();
+
+            // Asigna la lista de UsuarioGrupoTareaDTO a la tareaDTO
+            tareaDTO.UsuarioGrupoTareas = usuariosGrupoTarea;
+
+            // Llama al servicio para agregar la tarea
             var response = await _tareaServicio.AgregarTarea(tareaDTO);
 
             if (response != null)
@@ -276,6 +310,7 @@
             Snackbar.Add(ex.Message, Severity.Error);
         }
     }
+
 
     private async void Modificar()
     {

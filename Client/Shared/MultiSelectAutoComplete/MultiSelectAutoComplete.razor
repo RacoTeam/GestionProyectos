@@ -6,12 +6,14 @@
                      ShowProgressIndicator="true" DebounceInterval="600"
                      Label="@Label" Clearable="true" Immediate="false"
                      Variant="Variant.Outlined" CoerceValue="true"
-                     ToStringFunc="@GetNameFunc" />
+                     ToStringFunc="@(val => $"{GetNameFunc(val).string1} {GetNameFunc(val).string2}")"
+                     Disabled="@Disabled" />
 
     <MudChipSet AllClosable=true OnClose="RemoveValue">
         @foreach (var val in selectedValues)
         {
-            <MudChip Size=Size.Small @key="@GetIDFunc(val)" Text="@GetNameFunc(val)" />
+            var name = GetNameFunc(val);
+            <MudChip Size=Size.Small @key="@GetIDFunc(val)" Text=@($"{name.string1} {name.string2}") />
         }
     </MudChipSet>
 </div>
@@ -31,10 +33,13 @@
     public Func<string, Task<IEnumerable<T>>> SearchFunc { get; set; }
 
     [Parameter, EditorRequired]
-    public Func<T, string> GetNameFunc { get; set; }
+    public Func<T, (string string1, string? string2)> GetNameFunc { get; set; }
 
     [Parameter, EditorRequired]
     public Func<T, int> GetIDFunc { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
 
     private HashSet<T> selectedValues = new HashSet<T>();
 
@@ -62,7 +67,7 @@
 
     private void RemoveValue(MudChip chip)
     {
-        if (selectedValues.RemoveWhere(x => GetNameFunc(x) == chip.Text) > 0)
+        if (selectedValues.RemoveWhere(x => $"{GetNameFunc(x).string1} {GetNameFunc(x).string2}" == chip.Text) > 0)
             RefreshBinding();
     }
 
