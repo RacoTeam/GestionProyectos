@@ -31,12 +31,18 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(result.Mensaje);
         }
 
-        public async Task<int> AgregarTarea(TareaDTO Tarea)
+        public async Task<int> AgregarTarea(TareaDTO tarea, UsuarioGrupoTareaDTO? usuarioGrupoTarea = null)
         {
-            //TODO Formatear bien la fecha que reciba desde la vista a este formato 2012-04-23T18:25:43.511Z
 
-            var result = await _httpClient.PostAsJsonAsync("api/Tarea", Tarea);
+            var result = await _httpClient.PostAsJsonAsync("api/Tarea", tarea);
             var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
+
+            if (usuarioGrupoTarea != null)
+            {
+                // Si se proporciona un UsuarioGrupoTareaDTO, agrégalo a la lista de UsuarioGrupoTareas en la tareaDTO
+                tarea.UsuarioGrupoTareas = new List<UsuarioGrupoTareaDTO> { usuarioGrupoTarea };
+
+            }
 
             if (response!.EsCorrecto)
                 return response.Valor!;

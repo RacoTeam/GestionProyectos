@@ -13,8 +13,8 @@ namespace GestionProyectos.Shared.Models
         public int IdProyecto { get; set; }
         [JsonIgnore]
         public virtual GrupoDTO? Grupo { get; set; } = null!;
-        [JsonIgnore]
-        public virtual UsuarioDTO? IdUsuarioNavigation { get; set; }
+    
+        public virtual UsuarioDTO? IdUsuarioNavigation { get; set; } = null!;
         [JsonIgnore]
         public virtual ICollection<UsuarioGrupoTareaDTO>? UsuarioGrupoTareas { get; set; } = new List<UsuarioGrupoTareaDTO>();
     }

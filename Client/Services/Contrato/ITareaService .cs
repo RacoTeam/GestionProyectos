@@ -6,7 +6,7 @@ namespace GestionProyectos.Client.Services.Contrato
     {
         Task<List<TareaDTO>> ListarTareas();
         Task<TareaDTO> ObtenerTarea(int id);
-        Task<int> AgregarTarea(TareaDTO Tarea);
+        Task<int> AgregarTarea(TareaDTO tarea, UsuarioGrupoTareaDTO? usuarioGrupoTarea = null);
         Task<bool> EliminarTarea(int id);
     }
 }
