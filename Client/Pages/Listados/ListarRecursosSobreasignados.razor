@@ -1,0 +1,221 @@
+﻿@page "/Recursos/Sobreasignados"
+<PageTitle>Listado de Recursos</PageTitle>
+
+@using GestionProyectos.Client.Extensions
+@attribute [DynamicNavMenu("Recursos", GroupTitle = "Gestión de Proyectos")]
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+
+@using System.Net.Http.Json
+@using MudBlazor
+
+@using GestionProyectos.Shared.Models
+@using GestionProyectos.Client.Services.Contrato
+
+@inject IRecursoService _recursoServicio
+@inject ITareaService _tareaServicio
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar
+
+@inject NavigationManager _navManager
+
+@attribute [Authorize(Roles = "Administrador")]
+
+@* <MudTable Items="@tareasSuperpuestas" Dense="@dense" Hover="@hover" ReadOnly="false" CanCancelEdit="@canCancelEdit" Filter="new Func<TareaDTO,bool>(FilterFunc)"
+          @bind-SelectedItem="selectedItem1" SortLabel="Ordenar por" EditTrigger="TableEditTrigger.EditButton">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Listado de Tareas</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Buscar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <ColGroup>
+        <col style="width:50px;" />
+        <col style="width:80px;" />
+        <col style="width:50%;" />
+        <col style="width:50px;" />
+        <col />
+        <col />
+        <col />
+        <col style="width:50px;" />
+        <col style="width:50px;" />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<TareaDTO, object>(x=>x.IdTarea)">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Descripcion)">Descripción</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Avance)">Avance</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaInicio)">Fecha de Inicio</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaFin)">Fecha de Fin</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.IdProyecto)">Id Proyecto</MudTableSortLabel></MudTh>
+        <MudTh>Acciones</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.IdTarea</MudTd>
+            <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+            <MudTd DataLabel="Descripción">@context.Descripcion</MudTd>
+            <MudTd DataLabel="Avance">@context.Avance</MudTd>
+            <MudTd DataLabel="Fecha de Inicio">@context.FechaInicio</MudTd>
+            <MudTd DataLabel="Fecha de Fin">@context.FechaFin</MudTd>
+            <MudTd DataLabel="IdProyecto">@context.IdProyecto</MudTd>
+            <MudTd>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarTarea(context.IdTarea)" />
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarTarea(context.IdTarea)" />
+            </MudTd>
+
+        </RowTemplate>
+
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable> *@
+
+<MudTable Items="@recursoSobreasignados" Dense="@dense" Hover="@hover" ReadOnly="false" CanCancelEdit="@canCancelEdit" Filter="new Func<RecursoDTO,bool>(FilterFuncRecurso)"
+          @bind-SelectedItem="selectedItem1" SortLabel="Ordenar por" EditTrigger="TableEditTrigger.EditButton">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Listado de Recursos</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Buscar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <ColGroup>
+        <col style="width:50px;" />
+        <col/>
+        <col/>
+        <col/>
+        <col style="width:50px;" />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<RecursoDTO, object>(x=>x.IdRecurso)">ID</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<RecursoDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<RecursoDTO, object>(x=>x.CostoDia)">Costo por Dia</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<RecursoDTO, object>(x=>x.Tipo)">Tipo</MudTableSortLabel></MudTh>
+        <MudTh>Acciones</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.IdRecurso</MudTd>
+        <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+        <MudTd DataLabel="CostoDia">@context.CostoDia</MudTd>
+        <MudTd DataLabel="Tipo">@context.Tipo</MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarRecurso(context.IdRecurso)" />
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarRecurso(context.IdRecurso)" />
+        </MudTd>
+    </RowTemplate>
+
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+
+
+<MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+
+    @code {
+    private List<string> editEvents = new();
+    private bool dense = false;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = false;
+    private bool blockSwitch = false;
+    private string searchString = "";
+    private RecursoDTO selectedItem1 = null;
+
+    private HashSet<RecursoDTO> selectedItems1 = new HashSet<RecursoDTO>();
+
+    private IEnumerable<RecursoDTO> RecursoDTOs = new List<RecursoDTO>();
+    private IEnumerable<RecursoDTO> recursoSobreasignados = new List<RecursoDTO>();
+    private List<TareaDTO> TareaDTOs = new List<TareaDTO>();
+    private List<TareaDTO> tareasSuperpuestas = new List<TareaDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        RecursoDTOs = await _recursoServicio.ListarRecurso();
+
+        TareaDTOs = await _tareaServicio.ListarTareas();
+
+        recursoSobreasignados = ObtenerRecursosConSobreasignacion();
+        Console.WriteLine(recursoSobreasignados);
+    }
+
+    public List<RecursoDTO> ObtenerRecursosConSobreasignacion()
+    {
+        // Obtén todas las tareas que tienen sobreasignación
+        var tareasConSobreasignacion = TareaDTOs
+            .Where(t => TareaDTOs.Any(t2 =>
+                t2.IdTarea != t.IdTarea &&  // Excluye la propia tarea para evitar comparación consigo misma
+                t2.Recursos.Any(r => t.Recursos.Any(r2 =>
+                    r2.Nombre.Contains(r.Nombre) &&
+                    t2.FechaInicio <= t.FechaFin &&
+                    t2.FechaFin >= t.FechaInicio))))
+            .ToList();
+
+        // Obtiene los recursos asociados a las tareas con sobreasignación
+        var recursosConSobreasignacion = tareasConSobreasignacion
+            .SelectMany(t => t.Recursos)
+            .Distinct()
+            .ToList();
+
+        return recursosConSobreasignacion;
+    }
+
+    public List<TareaDTO> ObtenerTareasSuperpuestas()
+    {
+        var todasLasTareas = TareaDTOs;
+
+        foreach (TareaDTO tarea in todasLasTareas)
+        {
+            // Buscar tareas que se superponen con la tarea actual
+            var tareasSuperpuestasConActual = todasLasTareas
+                .Where(t =>
+                    t.IdTarea != tarea.IdTarea && // Excluir la propia tarea para evitar comparación consigo misma
+                    t.FechaInicio < tarea.FechaFin && tarea.FechaInicio < t.FechaFin)
+                .ToList();
+
+            // Si hay tareas superpuestas, agregarlas a la lista
+            if (tareasSuperpuestasConActual.Any())
+            {
+                tareasSuperpuestas.Add(tarea);
+                tareasSuperpuestas.AddRange(tareasSuperpuestasConActual);
+            }
+        }
+
+        // Eliminar duplicados
+        tareasSuperpuestas = tareasSuperpuestas.Distinct().ToList();
+
+        return tareasSuperpuestas;
+    }
+
+    private bool FilterFuncRecurso(RecursoDTO RecursoDTO)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (RecursoDTO.Nombre.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (RecursoDTO.IdRecurso.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private void ModificarRecurso(int id)
+    {
+        _navManager.NavigateTo($"/Recursos/modificar/{id}");
+    }
+
+    private void EliminarRecurso(int id)
+    {
+        _navManager.NavigateTo($"/Recursos/eliminar/{id}");
+    }
+    
+
+    private bool FilterFunc(TareaDTO TareaDTO)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (TareaDTO.Nombre.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (TareaDTO.IdTarea.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}

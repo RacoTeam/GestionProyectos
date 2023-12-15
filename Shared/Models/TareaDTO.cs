@@ -19,7 +19,6 @@ namespace GestionProyectos.Shared.Models
         public int? IdProyecto { get; set; }
         [JsonIgnore]
         public virtual ProyectoDTO? IdProyectoNavigation { get; set; }
-        [JsonIgnore]
         public virtual ICollection<RecursoDTO>? Recursos { get; set; } = new List<RecursoDTO>();
         [JsonIgnore]
         public virtual ICollection<UsuarioGrupoTareaDTO>? UsuarioGrupoTareas { get; set; } = new List<UsuarioGrupoTareaDTO>();

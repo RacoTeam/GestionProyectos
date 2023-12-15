@@ -284,17 +284,14 @@
         try
         {
             // Crear una lista de UsuarioGrupoTareaDTO a partir de los usuarios seleccionados
-            var usuariosGrupoTarea = usuariosSeleccionados
-                .Select(ugt => new UsuarioGrupoTareaDTO
-                    {
-                        IdUsuario = ugt.IdUsuario,
-                        IdProyecto = IdProyecto, //IdProyecto declarado en esta pagina
-                        IdTarea = IdTarea, //IdTarea declarado en esta pagina
-                    })
-                .ToList();
-
-            // Asigna la lista de UsuarioGrupoTareaDTO a la tareaDTO
-            tareaDTO.UsuarioGrupoTareas = usuariosGrupoTarea;
+            tareaDTO.UsuarioGrupoTareas = usuariosSeleccionados
+            .Select(ugt => new UsuarioGrupoTareaDTO
+                {
+                    IdUsuario = ugt.IdUsuario,
+                    IdGrupo = ObtenerIdGrupoPorProyecto(ugt, IdProyecto),
+                    IdProyecto = IdProyecto,
+                })
+            .ToList();
 
             // Llama al servicio para agregar la tarea
             var response = await _tareaServicio.AgregarTarea(tareaDTO);
@@ -302,7 +299,7 @@
             if (response != null)
             {
                 Snackbar.Add("Se agregó la tarea", Severity.Success);
-                _navManager.NavigateTo("/tareas/");
+                _navManager.NavigateTo($"/tareas/{IdProyecto}");
             }
         }
         catch (Exception ex)
@@ -311,6 +308,14 @@
         }
     }
 
+    private int ObtenerIdGrupoPorProyecto(UsuarioDTO usuario, int idProyecto)
+    {
+        // Asumo que UsuarioDTO tiene una propiedad GrupoDTOs que es la lista de grupos a los que pertenece el usuario
+        var grupo = usuario.UsuarioGrupos.FirstOrDefault(g => g.IdProyecto == idProyecto);
+
+        // Si encontramos el grupo, devolvemos su Id, de lo contrario, podrías manejar la situación de otra manera según tus necesidades.
+        return grupo != null ? grupo.IdGrupo : 0; // Otra opción podría ser lanzar una excepción si no se encuentra el grupo.
+    }
 
     private async void Modificar()
     {
