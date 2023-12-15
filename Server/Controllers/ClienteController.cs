@@ -5,7 +5,7 @@ using GestionProyectos.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestionProyectos.Server.ContClientelers
+namespace GestionProyectos.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -46,6 +46,8 @@ namespace GestionProyectos.Server.ContClientelers
 
             return Ok(responseApi);
         }
+
+
 
         [HttpGet]
         [Route("{idCliente}")]

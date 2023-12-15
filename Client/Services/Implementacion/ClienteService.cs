@@ -21,6 +21,8 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(result.Mensaje);
         }
 
+
+
         public async Task<ClienteDTO> ObtenerCliente(int id)
         {
             var result = await _httpClient.GetFromJsonAsync<ResponseAPI<ClienteDTO>>($"api/Cliente/{id}");
