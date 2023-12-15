@@ -232,7 +232,7 @@
     private async Task<IEnumerable<ClienteDTO>> SearchClientes(string value)
     {
         await Task.Delay(5);
-        return string.IsNullOrEmpty(value) ? listaClientes : listaClientes.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+        return string.IsNullOrEmpty(value) ? listaClientes : listaClientes.Where(c => c.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
     protected async override void OnInitialized()
@@ -255,9 +255,14 @@
                 try
                 {
                     proyectoDTO = await _proyectoServicio.ObtenerProyecto(IdProyecto);
-                    if (proyectoDTO.IdUsuario.HasValue){
-                        proyectoDTO.IdUsuarioNavigation = await _usuarioServicio.ObtenerUsuario(proyectoDTO.IdUsuario.Value); ;
-                    }
+
+                    proyectoDTO.IdClienteNavigation = null;
+                    proyectoDTO.IdUsuarioNavigation= null;
+
+                    // if (proyectoDTO.IdUsuario.HasValue){
+                    //     proyectoDTO.IdUsuarioNavigation = await _usuarioServicio.ObtenerUsuario(proyectoDTO.IdUsuario.Value); ;
+                    // }
+
                     _loader = false;
 
                     StateHasChanged();
