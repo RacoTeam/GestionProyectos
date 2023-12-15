@@ -7,9 +7,12 @@ namespace GestionProyectos.Client.Services.Implementacion
     public class TareaService : ITareaService
     {
         private readonly HttpClient _httpClient;
-        public TareaService(HttpClient httpClient)
+        private readonly IUsuarioGrupoTareaService _usgServicio;
+
+        public TareaService(HttpClient httpClient, IUsuarioGrupoTareaService usuarioGrupoTareaService)
         {
             _httpClient = httpClient;
+            _usgServicio = usuarioGrupoTareaService;
         }
 
         public async Task<List<TareaDTO>> ListarTareas()
@@ -33,15 +36,26 @@ namespace GestionProyectos.Client.Services.Implementacion
 
         public async Task<int> AgregarTarea(TareaDTO tarea, UsuarioGrupoTareaDTO? usuarioGrupoTarea = null)
         {
-
             var result = await _httpClient.PostAsJsonAsync("api/Tarea", tarea);
             var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
 
-            if (usuarioGrupoTarea != null)
+            if (response != null)
             {
-                // Si se proporciona un UsuarioGrupoTareaDTO, agrégalo a la lista de UsuarioGrupoTareas en la tareaDTO
-                tarea.UsuarioGrupoTareas = new List<UsuarioGrupoTareaDTO> { usuarioGrupoTarea };
-
+                if (tarea.UsuarioGrupoTareas.Any())
+                {
+                    foreach (UsuarioGrupoTareaDTO usg in tarea.UsuarioGrupoTareas)
+                    {
+                        usg.IdTarea = response.Valor;
+                        try
+                        {
+                            var responseusg = await _usgServicio.AgregarUsuarioGrupoTarea(usg);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(ex.Message);
+                        }
+                    }
+                }
             }
 
             if (response!.EsCorrecto)
