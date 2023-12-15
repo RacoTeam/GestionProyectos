@@ -74,10 +74,9 @@ namespace GestionProyectos.Client.Services.Implementacion
             }
         }
 
-
         public async Task<bool> EliminarProyecto(int id)
         {
-            var result = await _httpClient.DeleteAsync($"api/Proyecto/{id}");
+            var result = await _httpClient.DeleteAsync($"api/Proyecto/soft/{id}");
             var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
 
             if (response!.EsCorrecto)

@@ -58,7 +58,16 @@
         <MudTd DataLabel="ID">@context.IdProyecto</MudTd>
         <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
         <MudTd DataLabel="Descripción">@context.Descripcion</MudTd>
-        <MudTd DataLabel="Cliente">@context.IdClienteNavigation.Nombre</MudTd>
+        <MudTd DataLabel="Cliente">
+            @if (context.IdClienteNavigation != null)
+            {
+                @context.IdClienteNavigation.Nombre
+            }
+            else
+            {
+                <span>No asignado</span>
+            }
+        </MudTd>
         <MudTd DataLabel="Fecha de Inicio">@context.FechaInicio</MudTd>
         <MudTd DataLabel="Fecha de Fin">@context.FechaFin</MudTd>
         <MudTd>
@@ -85,8 +94,6 @@
     private bool blockSwitch = false;
     private string searchString = "";
     private ProyectoDTO selectedItem1 = null;
-
-    private HashSet<ProyectoDTO> selectedItems1 = new HashSet<ProyectoDTO>();
 
     private IEnumerable<ProyectoDTO> ProyectoDTOs = new List<ProyectoDTO>();
 
