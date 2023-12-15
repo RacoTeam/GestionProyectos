@@ -42,6 +42,34 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(response.Mensaje);
         }
 
+        public async Task<int> AgregarModificarUsuario(int IdUsuario, UsuarioDTO usuario)
+        {
+            HttpResponseMessage result;
+
+            if (usuario.IdUsuario == usuario.IdUsuario)
+            {
+                // Si el rol tiene un Id, se trata de una modificación
+                result = await _httpClient.PutAsJsonAsync($"api/Usuario/{IdUsuario}", usuario);
+            }
+            else
+            {
+                // Si el rol no tiene un Id válido, se trata de una adición
+                result = await _httpClient.PostAsJsonAsync("api/Usuario", usuario);
+            }
+
+            var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
+
+            if (response!.EsCorrecto)
+            {
+                return response.Valor!;
+            }
+            else
+            {
+                throw new Exception(response.Mensaje);
+            }
+        }
+
+
         public async Task<bool> EliminarUsuario(int id)
         {
             var result = await _httpClient.DeleteAsync($"api/Usuario/{id}");

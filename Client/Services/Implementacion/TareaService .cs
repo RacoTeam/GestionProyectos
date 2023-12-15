@@ -7,9 +7,12 @@ namespace GestionProyectos.Client.Services.Implementacion
     public class TareaService : ITareaService
     {
         private readonly HttpClient _httpClient;
-        public TareaService(HttpClient httpClient)
+        private readonly IUsuarioGrupoTareaService _usgServicio;
+
+        public TareaService(HttpClient httpClient, IUsuarioGrupoTareaService usuarioGrupoTareaService)
         {
             _httpClient = httpClient;
+            _usgServicio = usuarioGrupoTareaService;
         }
 
         public async Task<List<TareaDTO>> ListarTareas()
@@ -31,12 +34,29 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(result.Mensaje);
         }
 
-        public async Task<int> AgregarTarea(TareaDTO Tarea)
+        public async Task<int> AgregarTarea(TareaDTO tarea, UsuarioGrupoTareaDTO? usuarioGrupoTarea = null)
         {
-            //TODO Formatear bien la fecha que reciba desde la vista a este formato 2012-04-23T18:25:43.511Z
-
-            var result = await _httpClient.PostAsJsonAsync("api/Tarea", Tarea);
+            var result = await _httpClient.PostAsJsonAsync("api/Tarea", tarea);
             var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
+
+            if (response != null)
+            {
+                if (tarea.UsuarioGrupoTareas.Any())
+                {
+                    foreach (UsuarioGrupoTareaDTO usg in tarea.UsuarioGrupoTareas)
+                    {
+                        usg.IdTarea = response.Valor;
+                        try
+                        {
+                            var responseusg = await _usgServicio.AgregarUsuarioGrupoTarea(usg);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(ex.Message);
+                        }
+                    }
+                }
+            }
 
             if (response!.EsCorrecto)
                 return response.Valor!;

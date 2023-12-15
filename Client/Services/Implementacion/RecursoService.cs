@@ -42,6 +42,34 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(response.Mensaje);
         }
 
+        public async Task<int> AgregarModificarRecurso(int idRecurso, RecursoDTO recurso)
+        {
+            HttpResponseMessage result;
+
+            if (recurso.IdRecurso == recurso.IdRecurso)
+            {
+                // Si el Recurso tiene un Id, se trata de una modificación
+                result = await _httpClient.PutAsJsonAsync($"api/Recurso/{idRecurso}", recurso);
+            }
+            else
+            {
+                // Si el Recurso no tiene un Id válido, se trata de una adición
+                result = await _httpClient.PostAsJsonAsync("api/Recurso", recurso);
+            }
+
+            var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
+
+            if (response!.EsCorrecto)
+            {
+                return response.Valor!;
+            }
+            else
+            {
+                throw new Exception(response.Mensaje);
+            }
+        }
+
+
         public async Task<bool> EliminarRecurso(int id)
         {
             var result = await _httpClient.DeleteAsync($"api/Recurso/{id}");

@@ -8,5 +8,6 @@ namespace GestionProyectos.Client.Services.Contrato
         Task<GrupoDTO> ObtenerGrupo(int id);
         Task<int> AgregarGrupo(GrupoDTO Grupo);
         Task<bool> EliminarGrupo(int id);
+        Task<int> AgregarModificarGrupo(int IdGrupo, GrupoDTO grupo);
     }
 }

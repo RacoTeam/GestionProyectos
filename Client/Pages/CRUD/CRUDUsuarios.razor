@@ -5,150 +5,315 @@
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
-@using CG.Blazor.Forms
 @using CurrieTechnologies.Razor.SweetAlert2;
 @using GestionProyectos.Shared.Models;
-@using Microsoft.AspNetCore.Components.Authorization
-@using GestionProyectos.Client.Extensions;
 @using GestionProyectos.Client.Services.Contrato;
 
-@inject IUsuarioService _UsuarioServicio;
-@inject NavigationManager _navServicio;
+@inject IUsuarioService _usuarioServicio;
+@inject IRolService _rolServicio;
+
+@inject NavigationManager _navManager;
 @inject ISnackbar Snackbar;
-@inject AuthenticationStateProvider autenticacionProvider;
-@inject SweetAlertService Swal;
-@* 
-if varAgregar then
-<DynamicForm Model="@UsuarioDTO" OnValidSubmit="Agregar" />
 
-if modificar then
-<DynamicForm Model="@UsuarioDTO" OnValidSubmit="Agregar" /> *@
+@using GestionProyectos.Client.Shared.MultiSelectAutoComplete;
 
-<div>
-    @variable
-</div>
+@if (Action.ToLower().Contains("agregar"))
+{
+    <EditForm Model="@usuarioDTO" OnSubmit="OnSubmitUsuario" FormName="AgregarUsuarioForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Agregar Usuario</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="NombreUsuario" @bind-Value="usuarioDTO.NombreUsuario" For="@(() => usuarioDTO.NombreUsuario)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-<DynamicForm Model="@UsuarioDTO" OnValidSubmit="OnValidSubmit" />
+                        <MudItem>
+                            <MudTextField T="string" Label="Clave" @bind-Value="usuarioDTO.Clave" For="@(() => usuarioDTO.Clave)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-@code{
-    private UsuarioDTO UsuarioDTO = new UsuarioDTO();
-    private SesionDTO sesionUsuarioDTO = new SesionDTO();
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="usuarioDTO.Nombre" For="@(() => usuarioDTO.Nombre)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-    [Parameter] public string Action { get; set; }
-    [Parameter] public int IdUsuario { get; set; }
+                        <MudItem>
+                            <MudTextField T="string" Label="Apellido" @bind-Value="usuarioDTO.Apellido" For="@(() => usuarioDTO.Apellido)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-    string variable = "";
+                        <MudItem>
+                            <MudTextField T="string" Label="Dni" @bind-Value="usuarioDTO.Dni" For="@(() => usuarioDTO.Dni)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-    protected override void OnInitialized()
-    {
-        if (Action.Contains("agregar"))
-        {
-            variable = Action;
-        }
-        else if (Action.Contains("eliminar"))
-        {
-            variable = Action;
-        }
-        else if (Action.Contains("modificar"))
-        {
-            variable = Action;
-        }
+                        <MudItem>
+                            <MudTextField T="int?" Label="IdRol" @bind-Value="usuarioDTO.IdRol" For="@(() => usuarioDTO.IdRol)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-        base.OnInitialized();
-    }
 
-    /*private MyModel model = new MyModel();
-    
-    [RenderValidationSummary()]
-    [RenderFluentValidationValidator]
-    public class MyModel
-    {
-        [RenderMudTextField()]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string FirstName { get; set; }
-        
-        [RenderMudTextField(Placeholder = "enter something")]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string LastName { get; set; }
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Usuarios/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@_processing" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Agregar Usuario</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
-        public DateTime? DateOfBirth { get; set; }
-    }*/
+@if (Action.ToLower().Contains("modificar"))
+{
+    <EditForm Model="@usuarioDTO" OnSubmit="OnSubmitUsuario" FormName="ModificarUsuarioForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Modificar Usuario</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="NombreUsuario" @bind-Value="usuarioDTO.NombreUsuario" For="@(() => usuarioDTO.NombreUsuario)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-    private async void OnValidSubmit(EditContext context)
-    {
-        Console.WriteLine("Correcto");
-        // // Usuario.NombreUsuario = "Profe";
-        // // Usuario.Clave = "1234";
-        // // Usuario.IdUsuario = 4;
-        // // Usuario.IdRol = 4;
+                        <MudItem>
+                            <MudTextField T="string" Label="Clave" @bind-Value="usuarioDTO.Clave" For="@(() => usuarioDTO.Clave)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-        // // sesionUsuario.Rol = "Administrador";
-        // // sesionUsuario.NombreCompleto = "Profe";
-        // // sesionUsuario.IdUsuario = 11;
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="usuarioDTO.Nombre" For="@(() => usuarioDTO.Nombre)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-        // if (UsuarioDTO.NombreUsuario != null && UsuarioDTO.Clave != null)
-        // {
-        //     var response = await _UsuarioServicio.Buscar(UsuarioDTO.Nombre, UsuarioDTO.Clave);
-        //     if (response is null)
-        //     {
-        //         Snackbar.Add("No se encuentra al Usuario, registrese y vuelva a intentar.", Severity.Error);
-        //     }
-        //     else
-        //     {
-        //         var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-        //         await autenticacionExt.ActualizarEstadoAutenticacion(response);
+                        <MudItem>
+                            <MudTextField T="string" Label="Apellido" @bind-Value="usuarioDTO.Apellido" For="@(() => usuarioDTO.Apellido)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-        //         if (response.Rol.ToLower() == "administrador")
-        //         {
-        //             //toastService.ShowSuccess("Inicio exitoso.");
-        //             _navServicio.NavigateTo("/Usuarios/Listado");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //         }
-        //         if (!(response.Rol.ToLower() == "administrador"))
-        //         {
-        //             _navServicio.NavigateTo("/");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //             //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
-        //         }
+                        <MudItem>
+                            <MudTextField T="string" Label="Dni" @bind-Value="usuarioDTO.Dni" For="@(() => usuarioDTO.Dni)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-        //         //await sessionStorage.SetItemAsync("id", Usuario.Id);
-        //         //await JsRuntime.InvokeVoidAsync("location.reload");
-        //     }
-        // }
-    }
+                        <MudItem>
+                            <MudTextField T="int?" Label="IdRol" @bind-Value="usuarioDTO.IdRol" For="@(() => usuarioDTO.IdRol)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Usuarios/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Modificar Usuario</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+
+@if (Action.ToLower().Contains("eliminar"))
+{
+    <EditForm Model="@usuarioDTO" OnSubmit="OnSubmitUsuario" FormName="ModificarUsuarioForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Eliminar Usuario</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre de Usuario" @bind-Value="usuarioDTO.NombreUsuario" For="@(() => usuarioDTO.NombreUsuario)" ReadOnly="true" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudItem>
+                            <MudTextField T="string" Label="Clave" @bind-Value="usuarioDTO.Clave" For="@(() => usuarioDTO.Clave)" ReadOnly="true" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="usuarioDTO.Nombre" For="@(() => usuarioDTO.Nombre)" ReadOnly="true" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudItem>
+                            <MudTextField T="string" Label="Apellido" @bind-Value="usuarioDTO.Apellido" For="@(() => usuarioDTO.Apellido)" ReadOnly="true" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudItem>
+                            <MudTextField T="string" Label="Dni" @bind-Value="usuarioDTO.Dni" For="@(() => usuarioDTO.Dni)" ReadOnly="true" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudItem>
+                            <MudTextField T="int?" Label="IdRol" @bind-Value="usuarioDTO.IdRol" For="@(() => usuarioDTO.IdRol)" ReadOnly="true" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Eliminar Usuario</MudText>
+                                }
+                            </MudButton>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Usuarios/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Info" Class="ml-auto">Cancelar</MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
 }
 
 
-@* @code {
-    bool success;
-    string[] errors = { };
-    MudTextField<string> pwField1;
-    MudForm form;
 
-    private IEnumerable<string> PasswordStrength(string pw)
+@code {
+    private UsuarioDTO usuarioDTO = new UsuarioDTO();
+
+    [Parameter] public string Action { get; set; }
+    [Parameter] public int IdUsuario { get; set; } = 0;
+
+    string variable = "";
+
+    private bool _processing = false;
+
+    private bool _loader = false;
+
+    //private bool _errorUsuario = false;
+
+    private List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
+    private List<RolDTO> listaRoles = new List<RolDTO>();
+
+    private async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string value)
     {
-        if (string.IsNullOrWhiteSpace(pw))
+        await Task.Delay(5);
+        return string.IsNullOrEmpty(value) ? listaUsuarios : listaUsuarios.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase) || u.Apellido.Contains(value, StringComparison.OrdinalIgnoreCase) || u.IdRolNavigation.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    // private async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string value)
+    // {
+    //     await Task.Delay(5);
+    //     return string.IsNullOrEmpty(value) ? listaUsuarios : listaUsuarios.Where(c => c.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    // }
+
+    protected async override void OnInitialized()
+    {
+        _loader = true;
+        if (Action.Contains("eliminar") || Action.Contains("modificar"))
         {
-            yield return "Password is required!";
-            yield break;
+            try
+            {
+                usuarioDTO = await _usuarioServicio.ObtenerUsuario(IdUsuario);
+                _loader = false;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+                _navManager.NavigateTo("/usuarios/");
+            }
         }
-        if (pw.Length < 8)
-            yield return "Password must be at least of length 8";
-        if (!Regex.IsMatch(pw, @"[A-Z]"))
-            yield return "Password must contain at least one capital letter";
-        if (!Regex.IsMatch(pw, @"[a-z]"))
-            yield return "Password must contain at least one lowercase letter";
-        if (!Regex.IsMatch(pw, @"[0-9]"))
-            yield return "Password must contain at least one digit";
+        base.OnInitialized();
     }
 
-    private string PasswordMatch(string arg)
+
+    void OnSubmitUsuario(EditContext editContext)
     {
-        if (pwField1.Value != arg)
-            return "Passwords don't match";
-        return null;
+        if (editContext.Validate())
+        {
+            if (Action.ToLower().Contains("agregar")) AgregarUsuario();
+            else if (Action.ToLower().Contains("modificar")) ModificarUsuario();
+            else if (Action.ToLower().Contains("eliminar")) EliminarUsuario();
+        }
+        else
+        {
+            Snackbar.Add("Chequeé todos los campos", Severity.Warning);
+        }
     }
 
-} *@
+    private async void AgregarUsuario()
+    {
+        try
+        {
+            var response = await _usuarioServicio.AgregarUsuario(usuarioDTO);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se agregó el usuario", Severity.Success);
+                _navManager.NavigateTo("/usuarios/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async void ModificarUsuario()
+    {
+        try
+        {
+            var response = await _usuarioServicio.AgregarModificarUsuario(IdUsuario,usuarioDTO);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se modificó el usuario", Severity.Success);
+                _navManager.NavigateTo("/usuarios/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async void EliminarUsuario()
+    {
+        try
+        {
+            var response = await _usuarioServicio.EliminarUsuario(usuarioDTO.IdUsuario);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se eliminó el usuario", Severity.Success);
+                _navManager.NavigateTo("/usuarios/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}
