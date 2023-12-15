@@ -9,5 +9,6 @@
         //public string? Correo { get; set; }
 
         public string Rol { get; set; }
+        public DateTime? FechaEliminacion { get; set; }
     }
 }

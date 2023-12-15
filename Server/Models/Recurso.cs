@@ -1,4 +1,7 @@
-﻿namespace GestionProyectos.Server.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace GestionProyectos.Server.Models;
 
 public partial class Recurso
 {
@@ -11,6 +14,8 @@ public partial class Recurso
     public string? Tipo { get; set; }
 
     public int? IdTarea { get; set; }
+
+    public DateTime? FechaEliminacion { get; set; }
 
     public virtual Tarea? IdTareaNavigation { get; set; }
 }

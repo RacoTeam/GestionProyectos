@@ -1,8 +1,8 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
-using Microsoft.JSInterop;
-using System.IO;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+//using Microsoft.JSInterop;
+//using System.IO;
+//using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace GestionProyectos.Client.Services
 {

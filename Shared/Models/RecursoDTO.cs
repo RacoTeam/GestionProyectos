@@ -18,5 +18,6 @@ namespace GestionProyectos.Shared.Models
         public int? IdTarea { get; set; }
 
         public virtual TareaDTO? IdTareaNavigation { get; set; }
+        public DateTime? FechaEliminacion { get; set; }
     }
 }

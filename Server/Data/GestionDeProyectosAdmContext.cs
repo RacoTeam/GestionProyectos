@@ -1,14 +1,20 @@
-﻿using GestionProyectos.Server.Models;
+﻿using System;
+using System.Collections.Generic;
+using GestionProyectos.Server.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionProyectos.Server.Data;
 
 public partial class GestionDeProyectosAdmContext : DbContext
 {
-    public GestionDeProyectosAdmContext() { }
+    public GestionDeProyectosAdmContext()
+    {
+    }
 
     public GestionDeProyectosAdmContext(DbContextOptions<GestionDeProyectosAdmContext> options)
-        : base(options) { }
+        : base(options)
+    {
+    }
 
     public virtual DbSet<Cliente> Clientes { get; set; }
 
@@ -28,7 +34,9 @@ public partial class GestionDeProyectosAdmContext : DbContext
 
     public virtual DbSet<UsuarioGrupoTarea> UsuarioGrupoTareas { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=tcp:gestiondeproyectos.database.windows.net,1433;Initial Catalog=gestionDeProyectosADM;Persist Security Info=False;User ID=Emanuel;Password=Admin1234;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,6 +46,9 @@ public partial class GestionDeProyectosAdmContext : DbContext
 
             entity.ToTable("Cliente");
 
+            entity.Property(e => e.FechaEliminacion)
+                .HasColumnType("datetime")
+                .HasColumnName("Fecha_Eliminacion");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -51,6 +62,9 @@ public partial class GestionDeProyectosAdmContext : DbContext
 
             entity.HasIndex(e => new { e.IdGrupo, e.IdProyecto }, "UX_Grupo_Proyecto").IsUnique();
 
+            entity.Property(e => e.FechaEliminacion)
+                .HasColumnType("datetime")
+                .HasColumnName("Fecha_Eliminacion");
             entity.Property(e => e.Nombre).HasMaxLength(50);
 
             entity.HasOne(d => d.IdProyectoNavigation).WithMany(p => p.Grupos)
@@ -71,6 +85,9 @@ public partial class GestionDeProyectosAdmContext : DbContext
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.FechaEliminacion)
+                .HasColumnType("datetime")
+                .HasColumnName("Fecha_Eliminacion");
             entity.Property(e => e.FechaFin).HasColumnType("datetime");
             entity.Property(e => e.FechaInicio).HasColumnType("datetime");
             entity.Property(e => e.Nombre)
@@ -92,6 +109,9 @@ public partial class GestionDeProyectosAdmContext : DbContext
 
             entity.ToTable("Recurso");
 
+            entity.Property(e => e.FechaEliminacion)
+                .HasColumnType("datetime")
+                .HasColumnName("Fecha_Eliminacion");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -110,6 +130,9 @@ public partial class GestionDeProyectosAdmContext : DbContext
 
             entity.ToTable("Rol");
 
+            entity.Property(e => e.FechaEliminacion)
+                .HasColumnType("datetime")
+                .HasColumnName("Fecha_Eliminacion");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -129,6 +152,9 @@ public partial class GestionDeProyectosAdmContext : DbContext
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.FechaEliminacion)
+                .HasColumnType("datetime")
+                .HasColumnName("Fecha_Eliminacion");
             entity.Property(e => e.FechaFin).HasColumnType("datetime");
             entity.Property(e => e.FechaInicio).HasColumnType("datetime");
             entity.Property(e => e.IdProyecto).IsRequired();
@@ -153,6 +179,10 @@ public partial class GestionDeProyectosAdmContext : DbContext
             entity.Property(e => e.Clave)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Dni).HasMaxLength(8);
+            entity.Property(e => e.FechaEliminacion)
+                .HasColumnType("datetime")
+                .HasColumnName("Fecha_Eliminacion");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -165,7 +195,6 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .HasForeignKey(d => d.IdRol)
                 .HasConstraintName("FK__Usuario__IdRol__693CA210");
         });
-
 
         modelBuilder.Entity<UsuarioGrupo>(entity =>
         {
@@ -187,8 +216,6 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .HasConstraintName("FK__UsuarioGrupo__339FAB6E");
         });
 
-
-
         modelBuilder.Entity<UsuarioGrupoTarea>(entity =>
         {
             entity.HasKey(e => new { e.IdUsuario, e.IdGrupo, e.IdTarea }).HasName("PK__UsuarioG__418C97FAC38257BF");
@@ -207,7 +234,6 @@ public partial class GestionDeProyectosAdmContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UsuarioGrupoTare__47A6A41B");
         });
-
 
         OnModelCreatingPartial(modelBuilder);
     }

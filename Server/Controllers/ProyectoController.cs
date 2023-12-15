@@ -183,7 +183,7 @@ namespace GestionProyectos.Server.Controllers
         }
 
         [HttpDelete]
-        [Route("{idProyecto}")]
+        [Route("hard/{idProyecto}")]
         public async Task<IActionResult> EliminarProyecto(int idProyecto)
         {
             var responseApi = new ResponseAPI<int>();
@@ -215,6 +215,110 @@ namespace GestionProyectos.Server.Controllers
 
             return Ok(responseApi);
         }
+
+        [HttpDelete]
+        [Route("soft/{idProyecto}")]
+        public async Task<IActionResult> EliminarLogicoProyecto(int idProyecto)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                var dbProyecto = await _dbContext.Proyectos
+                    .Include(p => p.Tareas)
+                    .Include(p => p.Grupos)
+                    .FirstOrDefaultAsync(f => f.IdProyecto == idProyecto);
+
+                if (dbProyecto != null)
+                {
+                    dbProyecto.FechaEliminacion = DateTime.Now;
+
+                    foreach (var tarea in dbProyecto.Tareas)
+                    {
+                        tarea.FechaEliminacion = DateTime.Now;
+                    }
+
+                    foreach (var grupo in dbProyecto.Grupos)
+                    {
+                        grupo.FechaEliminacion = DateTime.Now;
+                    }
+
+                    await _dbContext.SaveChangesAsync();
+
+                    responseApi.EsCorrecto = true;
+                }
+                else
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Proyecto no encontrado";
+                }
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+            }
+
+            return Ok(responseApi);
+        }
+
+        [HttpPost]
+        [Route("restore/{idProyecto}")]
+        public async Task<IActionResult> RestaurarProyecto(int idProyecto)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                var dbProyecto = await _dbContext.Proyectos.FirstOrDefaultAsync(f => f.IdProyecto == idProyecto);
+
+                if (dbProyecto != null)
+                {
+                    var fechaEliminacionProyecto = dbProyecto.FechaEliminacion;
+
+                    // Restaurar el proyecto
+                    dbProyecto.FechaEliminacion = null;
+                    await _dbContext.SaveChangesAsync();
+
+                    // Restaurar las tareas asociadas al proyecto y que fueron eliminadas en la misma fecha
+                    var tareasEliminadas = await _dbContext.Tareas
+                        .Where(t => t.IdProyecto == idProyecto && t.FechaEliminacion == fechaEliminacionProyecto)
+                        .ToListAsync();
+
+                    foreach (var tarea in tareasEliminadas)
+                    {
+                        tarea.FechaEliminacion = null;
+                    }
+
+                    // Restaurar los grupos asociados al proyecto y que fueron eliminados en la misma fecha
+                    var gruposEliminados = await _dbContext.Grupos
+                        .Where(g => g.IdProyecto == idProyecto && g.FechaEliminacion == fechaEliminacionProyecto)
+                        .ToListAsync();
+
+                    foreach (var grupo in gruposEliminados)
+                    {
+                        grupo.FechaEliminacion = null;
+                    }
+
+                    await _dbContext.SaveChangesAsync();
+
+                    responseApi.EsCorrecto = true;
+                }
+                else
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Proyecto no encontrado";
+                }
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+            }
+
+            return Ok(responseApi);
+        }
+
 
     }
 }

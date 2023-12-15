@@ -34,5 +34,6 @@ namespace GestionProyectos.Shared.Models
         public virtual ICollection<ProyectoDTO> Proyectos { get; set; } = new List<ProyectoDTO>();
 
         public virtual ICollection<UsuarioGrupoDTO> UsuarioGrupos { get; set; } = new List<UsuarioGrupoDTO>();
+        public DateTime? FechaEliminacion { get; set; }
     }
 }

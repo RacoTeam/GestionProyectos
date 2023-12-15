@@ -1,4 +1,7 @@
-﻿namespace GestionProyectos.Server.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace GestionProyectos.Server.Models;
 
 public partial class Grupo
 {
@@ -7,6 +10,8 @@ public partial class Grupo
     public int IdProyecto { get; set; }
 
     public string? Nombre { get; set; }
+
+    public DateTime? FechaEliminacion { get; set; }
 
     public virtual Proyecto IdProyectoNavigation { get; set; } = null!;
 

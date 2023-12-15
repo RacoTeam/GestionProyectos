@@ -12,5 +12,6 @@ namespace GestionProyectos.Shared.Models
         public string? Nombre { get; set; }
         [JsonIgnore]
         public virtual ICollection<UsuarioDTO> Usuarios { get; set; } = new List<UsuarioDTO>();
+        public DateTime? FechaEliminacion { get; set; }
     }
 }

@@ -34,5 +34,6 @@ namespace GestionProyectos.Shared.Models
         public virtual UsuarioDTO? IdUsuarioNavigation { get; set; }
 
         public virtual ICollection<TareaDTO> Tareas { get; set; } = new List<TareaDTO>();
+        public DateTime? FechaEliminacion { get; set; }
     }
 }

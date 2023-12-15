@@ -1,4 +1,7 @@
-﻿namespace GestionProyectos.Server.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace GestionProyectos.Server.Models;
 
 public partial class Proyecto
 {
@@ -17,6 +20,8 @@ public partial class Proyecto
     public int? IdCliente { get; set; }
 
     public int? IdUsuario { get; set; }
+
+    public DateTime? FechaEliminacion { get; set; }
 
     public virtual ICollection<Grupo> Grupos { get; set; } = new List<Grupo>();
 

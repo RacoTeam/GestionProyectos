@@ -1,4 +1,7 @@
-﻿namespace GestionProyectos.Server.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace GestionProyectos.Server.Models;
 
 public partial class UsuarioGrupo
 {

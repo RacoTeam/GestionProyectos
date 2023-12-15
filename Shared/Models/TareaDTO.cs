@@ -23,5 +23,6 @@ namespace GestionProyectos.Shared.Models
         public virtual ICollection<RecursoDTO>? Recursos { get; set; } = new List<RecursoDTO>();
         [JsonIgnore]
         public virtual ICollection<UsuarioGrupoTareaDTO>? UsuarioGrupoTareas { get; set; } = new List<UsuarioGrupoTareaDTO>();
+        public DateTime? FechaEliminacion { get; set; }
     }
 }

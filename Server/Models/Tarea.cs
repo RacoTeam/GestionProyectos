@@ -1,4 +1,7 @@
-﻿namespace GestionProyectos.Server.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace GestionProyectos.Server.Models;
 
 public partial class Tarea
 {
@@ -17,6 +20,8 @@ public partial class Tarea
     public double? Avance { get; set; }
 
     public int? IdProyecto { get; set; }
+
+    public DateTime? FechaEliminacion { get; set; }
 
     public virtual Proyecto? IdProyectoNavigation { get; set; }
 
