@@ -130,6 +130,50 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult> ModificarTarea(int id, TareaDTO tareaDTO)
+        {
+            var responseApi = new ResponseAPI<int>();
+            try
+            {
+                var dbTarea = await _dbContext.Tareas
+                    .Include(t => t.IdProyectoNavigation)
+                    .Include(t => t.Recursos)
+                    .Include(t => t.UsuarioGrupoTareas)
+                    .Where(t => t.IdTarea == id)
+                    .FirstOrDefaultAsync();
+
+                if (dbTarea == null)
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Tarea no encontrada";
+                    return NotFound(responseApi);
+                }
+
+                // Update properties of dbTarea with values from tareaDTO
+                _mapper.Map(tareaDTO, dbTarea);
+
+                // Clear related collections to avoid unintended updates
+                dbTarea.IdProyectoNavigation = null;
+                dbTarea.Recursos = null;
+                dbTarea.UsuarioGrupoTareas = null;
+
+                _dbContext.Entry(dbTarea).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = dbTarea.IdTarea;
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+                return StatusCode(500, responseApi); // Internal Server Error
+            }
+
+            return Ok(responseApi);
+        }
+
         [HttpDelete]
         [Route("{idTarea}")]
         public async Task<IActionResult> EliminarTarea(int idTarea)

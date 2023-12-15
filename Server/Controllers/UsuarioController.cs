@@ -153,6 +153,52 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult> ModificarUsuario(int id, UsuarioDTO usuarioDTO)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                var dbUsuario = await _dbContext.Usuarios
+                    .Include(u => u.IdRolNavigation)
+                    .Include(u => u.Proyectos)
+                    .Include(u => u.UsuarioGrupos)
+                    .Where(u => u.IdUsuario == id)
+                    .FirstOrDefaultAsync();
+
+                if (dbUsuario == null)
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Usuario no encontrado";
+                    return NotFound(responseApi);
+                }
+
+                // Update properties of dbUsuario with values from usuarioDTO
+                _mapper.Map(usuarioDTO, dbUsuario);
+
+                // Clear related collections to avoid unintended updates
+                dbUsuario.IdRolNavigation = null;
+                dbUsuario.Proyectos = null;
+                dbUsuario.UsuarioGrupos = null;
+
+                _dbContext.Entry(dbUsuario).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = dbUsuario.IdUsuario;
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+                return StatusCode(500, responseApi); // Internal Server Error
+            }
+
+            return Ok(responseApi);
+        }
+
+
         [HttpDelete]
         [Route("{idUsuario}")]
         public async Task<IActionResult> EliminarUsuario(int idUsuario)
