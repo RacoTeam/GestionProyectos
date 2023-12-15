@@ -112,6 +112,55 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+        [HttpPut]
+        public async Task<ActionResult> ModificarUsuarioGrupo(int idUsuario, int idGrupo, int idProyecto, UsuarioGrupoDTO usuarioGrupoDTO)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                // Buscar y eliminar la entidad existente
+                var dbUsuarioGrupo = await _dbContext.UsuarioGrupos
+                    .Where(ug => ug.IdUsuario == idUsuario && ug.IdGrupo == idGrupo && ug.IdProyecto == idProyecto)
+                    .FirstOrDefaultAsync();
+
+                if (dbUsuarioGrupo == null)
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "UsuarioGrupo no encontrado";
+                    return NotFound(responseApi);
+                }
+
+                _dbContext.UsuarioGrupos.Remove(dbUsuarioGrupo);
+                await _dbContext.SaveChangesAsync();
+
+                // Agregar una nueva entidad con los valores actualizados
+                var nuevaUsuarioGrupo = new UsuarioGrupo
+                {
+                    IdUsuario = usuarioGrupoDTO.IdUsuario,
+                    IdGrupo = usuarioGrupoDTO.IdGrupo,
+                    IdProyecto = usuarioGrupoDTO.IdProyecto
+                    // Agrega las propiedades adicionales que necesitas actualizar
+                };
+
+                _dbContext.UsuarioGrupos.Add(nuevaUsuarioGrupo);
+                await _dbContext.SaveChangesAsync();
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = nuevaUsuarioGrupo.IdUsuario; // O cualquier propiedad que desees devolver
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+                return StatusCode(500, responseApi); // Internal Server Error
+            }
+
+            return Ok(responseApi);
+        }
+
+
+
         [HttpDelete]
         public async Task<IActionResult> EliminarUsuarioGrupo(int idUsuario, int idGrupo)
         {

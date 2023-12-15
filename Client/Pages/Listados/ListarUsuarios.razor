@@ -38,32 +38,33 @@
     <ColGroup>
         <col style="width:50px;" />
         <col style="width:80px;" />
-        <col style="width:50%;" />
         <col />
         <col />
+        <col style="width:50px;" />
         <col style="width:50px;" />
         <col style="width:50px;" />
     </ColGroup>
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<UsuarioDTO, object>(x=>x.IdUsuario)">ID</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<UsuarioDTO, object>(x=>x.NombreUsuario)">Usuario</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortBy="new Func<UsuarioDTO, object>(x=>x.Clave)">Clave</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<UsuarioDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<UsuarioDTO, object>(x=>x.Apellido)">Apellido</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<UsuarioDTO, object>(x=>x.Dni)">DNI</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<UsuarioDTO, object>(x=>x.IdRolNavigation.Nombre)">Rol</MudTableSortLabel></MudTh>
-        <MudTh></MudTh>
+        <MudTh>Acciones</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="ID">@context.IdUsuario</MudTd>
         <MudTd DataLabel="NombreUsuario">@context.NombreUsuario</MudTd>
-        <MudTd DataLabel="Clave">@context.Clave</MudTd>
         <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
         <MudTd DataLabel="Apellido">@context.Apellido</MudTd>
         <MudTd DataLabel="Dni">@context.Dni</MudTd>
         <MudTd DataLabel="Rol">@context.IdRolNavigation.Nombre</MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarUsuario(context.IdUsuario)" /></MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarUsuario(context.IdUsuario)" /></MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarUsuario(context.IdUsuario)" />
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarUsuario(context.IdUsuario)" />
+        </MudTd>
+
     </RowTemplate>
 
     <PagerContent>

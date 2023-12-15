@@ -14,6 +14,7 @@
 @using GestionProyectos.Client.Services.Contrato
 
 @inject IGrupoService _grupoServicio
+@inject IUsuarioGrupoService _usuarioGrupoServivio
 @inject HttpClient httpClient
 @inject ISnackbar Snackbar
 
@@ -45,13 +46,37 @@
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<GrupoDTO, object>(x=>x.IdGrupo)">ID</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<GrupoDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortBy="new Func<GrupoDTO, object>(x=>x.IdProyecto)">IdProyecto</MudTableSortLabel></MudTh>
+        <MudTh>Usuarios en grupo</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="IdGrupo">@context.IdGrupo</MudTd>
         <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
-        <MudTd DataLabel="IdProyecto">@context.IdProyecto</MudTd>
+        <MudTd DataLabel="Usuarios en grupo">
+            @if (UsuarioDTOs != null)
+            {
+                var usuariosEnGrupo = UsuarioDTOs
+                .Where(usuarioGrupo => usuarioGrupo.IdGrupo == context.IdGrupo)
+                .Select(usuarioGrupo => usuarioGrupo.IdUsuarioNavigation.NombreUsuario)
+                .ToList();
+
+                if (usuariosEnGrupo.Any())
+                {
+                    foreach (var nombreUsuario in usuariosEnGrupo)
+                    {
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" Class="me-1">@($"{nombreUsuario}")</MudButton>
+                    }
+                }
+                else
+                {
+                    <span>No hay usuarios asignados</span>
+                }
+            }
+            else
+            {
+                <span>No hay datos de usuarios</span>
+            }
+        </MudTd>
         <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarGrupo(context.IdGrupo)" /></MudTd>
         <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarGrupo(context.IdGrupo)" /></MudTd>
     </RowTemplate>
@@ -76,10 +101,21 @@
     private HashSet<GrupoDTO> selectedItems1 = new HashSet<GrupoDTO>();
 
     private IEnumerable<GrupoDTO> GrupoDTOs = new List<GrupoDTO>();
+    private IEnumerable<UsuarioGrupoDTO> UsuarioDTOs = new List<UsuarioGrupoDTO>();
 
     protected override async Task OnInitializedAsync()
     {
-        GrupoDTOs = await _grupoServicio.ListarGrupos();
+        try
+        {
+            GrupoDTOs = await _grupoServicio.ListarGrupos();
+            UsuarioDTOs = await _usuarioGrupoServivio.ListarUsuarioGrupos();
+
+
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
     }
 
     private bool FilterFunc(GrupoDTO grupoDTO)

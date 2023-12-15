@@ -126,6 +126,50 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult> ModificarGrupo(int id, GrupoDTO grupoDTO)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                var dbGrupo = await _dbContext.Grupos
+                    .Include(g => g.IdProyectoNavigation)
+                    .Include(g => g.UsuarioGrupos)
+                    .Where(g => g.IdGrupo == id)
+                    .FirstOrDefaultAsync();
+
+                if (dbGrupo == null)
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Grupo no encontrado";
+                    return NotFound(responseApi);
+                }
+
+                // Update properties of dbGrupo with values from grupoDTO
+                _mapper.Map(grupoDTO, dbGrupo);
+
+                // Clear related collections to avoid unintended updates
+                dbGrupo.IdProyectoNavigation = null;
+                dbGrupo.UsuarioGrupos = null;
+
+                _dbContext.Entry(dbGrupo).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = dbGrupo.IdGrupo;
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+                return StatusCode(500, responseApi); // Internal Server Error
+            }
+
+            return Ok(responseApi);
+        }
+
+
         [HttpDelete]
         [Route("{idGrupo}")]
         public async Task<IActionResult> EliminarGrupo(int idGrupo)
