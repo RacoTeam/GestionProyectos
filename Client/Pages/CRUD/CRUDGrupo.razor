@@ -5,150 +5,283 @@
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
-@using CG.Blazor.Forms
 @using CurrieTechnologies.Razor.SweetAlert2;
 @using GestionProyectos.Shared.Models;
-@using Microsoft.AspNetCore.Components.Authorization
-@using GestionProyectos.Client.Extensions;
 @using GestionProyectos.Client.Services.Contrato;
 
 @inject IGrupoService _grupoServicio;
-@inject NavigationManager _navServicio;
+@inject IProyectoService _proyectoServicio;
+@inject IRolService _rolServicio;
+
+@inject NavigationManager _navManager;
 @inject ISnackbar Snackbar;
-@inject AuthenticationStateProvider autenticacionProvider;
-@inject SweetAlertService Swal;
-@* 
-if varAgregar then
-<DynamicForm Model="@GrupoDTO" OnValidSubmit="Agregar" />
 
-if modificar then
-<DynamicForm Model="@GrupoDTO" OnValidSubmit="Agregar" /> *@
+@using GestionProyectos.Client.Shared.MultiSelectAutoComplete;
 
-<div>
-    @variable
-</div>
+@if (Action.ToLower().Contains("agregar"))
+{
+    <EditForm Model="@grupoDTO" OnSubmit="OnSubmitGrupo" FormName="AgregarGrupoForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Agregar Grupo</MudText>
 
-<DynamicForm Model="@GrupoDTO" OnValidSubmit="OnValidSubmit" />
+                        <MudItem>
+                            <MudTextField T="int" Label="IdProyecto" @bind-Value="grupoDTO.IdProyecto" For="@(() => grupoDTO.IdProyecto)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-@code{
-    private GrupoDTO GrupoDTO = new GrupoDTO();
-    private SesionDTO sesionGrupoDTO = new SesionDTO();
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="grupoDTO.Nombre" For="@(() => grupoDTO.Nombre)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-    [Parameter] public string Action { get; set; }
-    [Parameter] public int IdGrupo { get; set; }
 
-    string variable = "";
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Grupos/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@_processing" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Agregar Grupo</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
 
-    protected override void OnInitialized()
-    {
-        if (Action.Contains("agregar"))
-        {
-            variable = Action;
-        }
-        else if (Action.Contains("eliminar"))
-        {
-            variable = Action;
-        }
-        else if (Action.Contains("modificar"))
-        {
-            variable = Action;
-        }
+@if (Action.ToLower().Contains("modificar"))
+{
+    <EditForm Model="@grupoDTO" OnSubmit="OnSubmitGrupo" FormName="ModificarGrupoForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Modificar Grupo</MudText>
+                        <MudItem>
+                            <MudTextField T="int" Label="IdProyecto" @bind-Value="grupoDTO.IdProyecto" For="@(() => grupoDTO.IdProyecto)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-        base.OnInitialized();
-    }
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="grupoDTO.Nombre" For="@(() => grupoDTO.Nombre)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-    /*private MyModel model = new MyModel();
-    
-    [RenderValidationSummary()]
-    [RenderFluentValidationValidator]
-    public class MyModel
-    {
-        [RenderMudTextField()]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string FirstName { get; set; }
-        
-        [RenderMudTextField(Placeholder = "enter something")]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string LastName { get; set; }
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Grupos/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Modificar Grupo</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
-        public DateTime? DateOfBirth { get; set; }
-    }*/
+@if (Action.ToLower().Contains("eliminar"))
+{
+    <EditForm Model="@grupoDTO" OnSubmit="OnSubmitGrupo" FormName="ModificarGrupoForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Eliminar Grupo</MudText>
+                        <MudItem>
+                            <MudTextField T="int" Label="IdProyecto" @bind-Value="grupoDTO.IdProyecto" For="@(() => grupoDTO.IdProyecto)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-    private async void OnValidSubmit(EditContext context)
-    {
-        Console.WriteLine("Correcto");
-        // // Grupo.NombreGrupo = "Profe";
-        // // Grupo.Clave = "1234";
-        // // Grupo.IdGrupo = 4;
-        // // Grupo.IdGrupo = 4;
-
-        // // sesionGrupo.Grupo = "Administrador";
-        // // sesionGrupo.NombreCompleto = "Profe";
-        // // sesionGrupo.IdGrupo = 11;
-
-        // if (GrupoDTO.NombreGrupo != null && GrupoDTO.Clave != null)
-        // {
-        //     var response = await _GrupoServicio.Buscar(GrupoDTO.Nombre, GrupoDTO.Clave);
-        //     if (response is null)
-        //     {
-        //         Snackbar.Add("No se encuentra al Grupo, registrese y vuelva a intentar.", Severity.Error);
-        //     }
-        //     else
-        //     {
-        //         var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-        //         await autenticacionExt.ActualizarEstadoAutenticacion(response);
-
-        //         if (response.Grupo.ToLower() == "administrador")
-        //         {
-        //             //toastService.ShowSuccess("Inicio exitoso.");
-        //             _navServicio.NavigateTo("/Grupos/Listado");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //         }
-        //         if (!(response.Grupo.ToLower() == "administrador"))
-        //         {
-        //             _navServicio.NavigateTo("/");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //             //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
-        //         }
-
-        //         //await sessionStorage.SetItemAsync("id", Grupo.Id);
-        //         //await JsRuntime.InvokeVoidAsync("location.reload");
-        //     }
-        // }
-    }
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="grupoDTO.Nombre" For="@(() => grupoDTO.Nombre)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Eliminar Grupo</MudText>
+                                }
+                            </MudButton>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Grupos/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Info" Class="ml-auto">Cancelar</MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
 }
 
 
-@* @code {
-    bool success;
-    string[] errors = { };
-    MudTextField<string> pwField1;
-    MudForm form;
 
-    private IEnumerable<string> PasswordStrength(string pw)
+@code {
+    private GrupoDTO grupoDTO = new GrupoDTO();
+
+    [Parameter] public string Action { get; set; }
+    [Parameter] public int IdGrupo { get; set; } = 0;
+
+    string variable = "";
+
+    private bool _processing = false;
+
+    private bool _loader = false;
+
+    //private bool _errorGrupo = false;
+
+    private List<GrupoDTO> listaGrupos = new List<GrupoDTO>();
+    private List<RolDTO> listaRoles = new List<RolDTO>();
+    private List<ProyectoDTO> listaProyectos = new List<ProyectoDTO>();
+
+    private bool _errorProyecto = false;
+
+    private async Task<IEnumerable<ProyectoDTO>> SearchProyecto(string value)
     {
-        if (string.IsNullOrWhiteSpace(pw))
+        await Task.Delay(5);
+        return string.IsNullOrEmpty(value) ? listaProyectos : listaProyectos.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase) );
+    }
+
+    // private async Task<IEnumerable<GrupoDTO>> SearchGrupos(string value)
+    // {
+    //     await Task.Delay(5);
+    //     return string.IsNullOrEmpty(value) ? listaGrupos : listaGrupos.Where(c => c.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    // }
+
+    protected async override void OnInitialized()
+    {
+        _loader = true;
+        if (Action.Contains("eliminar") || Action.Contains("modificar"))
         {
-            yield return "Password is required!";
-            yield break;
+            try
+            {
+                grupoDTO = await _grupoServicio.ObtenerGrupo(IdGrupo);
+                _loader = false;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+                _navManager.NavigateTo("/Grupos/");
+            }
         }
-        if (pw.Length < 8)
-            yield return "Password must be at least of length 8";
-        if (!Regex.IsMatch(pw, @"[A-Z]"))
-            yield return "Password must contain at least one capital letter";
-        if (!Regex.IsMatch(pw, @"[a-z]"))
-            yield return "Password must contain at least one lowercase letter";
-        if (!Regex.IsMatch(pw, @"[0-9]"))
-            yield return "Password must contain at least one digit";
+        if (Action.Contains("agregar"))
+        {
+            try
+            {
+                listaProyectos = await _proyectoServicio.ListarProyectos();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+                _navManager.NavigateTo("/Grupos/");
+            }
+        }
+            
+        base.OnInitialized();
     }
 
-    private string PasswordMatch(string arg)
+
+    void OnSubmitGrupo(EditContext editContext)
     {
-        if (pwField1.Value != arg)
-            return "Passwords don't match";
-        return null;
+        if (editContext.Validate())
+        {
+            if (Action.ToLower().Contains("agregar")) AgregarGrupo();
+            else if (Action.ToLower().Contains("modificar")) ModificarGrupo();
+            else if (Action.ToLower().Contains("eliminar")) EliminarGrupo();
+        }
+        else
+        {
+            Snackbar.Add("Chequeé todos los campos", Severity.Warning);
+        }
     }
 
-} *@
+    private async void AgregarGrupo()
+    {
+        try
+        {
+            var response = await _grupoServicio.AgregarGrupo(grupoDTO);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se agregó el Grupo", Severity.Success);
+                _navManager.NavigateTo("/Grupos/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async void ModificarGrupo()
+    {
+        try
+        {
+            var response = await _grupoServicio.AgregarModificarGrupo(IdGrupo, grupoDTO);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se modificó el Grupo", Severity.Success);
+                _navManager.NavigateTo("/Grupos/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async void EliminarGrupo()
+    {
+        try
+        {
+            var response = await _grupoServicio.EliminarGrupo(grupoDTO.IdGrupo);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se eliminó el Grupo", Severity.Success);
+                _navManager.NavigateTo("/Grupos/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}
