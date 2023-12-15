@@ -1,154 +1,254 @@
-﻿@page "/Rols/{action}/{IdRol:int}"
+﻿@page "/rols/{action}/{IdRol:int}"
 
-<PageTitle>Rol</PageTitle>
+<PageTitle>Roles</PageTitle>
 
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
-@using CG.Blazor.Forms
 @using CurrieTechnologies.Razor.SweetAlert2;
 @using GestionProyectos.Shared.Models;
-@using Microsoft.AspNetCore.Components.Authorization
-@using GestionProyectos.Client.Extensions;
 @using GestionProyectos.Client.Services.Contrato;
 
-@inject IRolService _RolServicio;
-@inject NavigationManager _navServicio;
+@inject IRolService _rolServicio;
+@inject IUsuarioService _usuarioServicio;
+@inject NavigationManager _navManager;
 @inject ISnackbar Snackbar;
-@inject AuthenticationStateProvider autenticacionProvider;
-@inject SweetAlertService Swal;
-@* 
-if varAgregar then
-<DynamicForm Model="@RolDTO" OnValidSubmit="Agregar" />
 
-if modificar then
-<DynamicForm Model="@RolDTO" OnValidSubmit="Agregar" /> *@
+@using GestionProyectos.Client.Shared.MultiSelectAutoComplete;
 
-<div>
-    @variable
-</div>
+@if (Action.ToLower().Contains("agregar"))
+{
+    <EditForm Model="@rolDTO" OnSubmit="OnSubmitRol" FormName="AgregarRolForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Agregar Rol</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="rolDTO.Nombre" For="@(() => rolDTO.Nombre)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-<DynamicForm Model="@RolDTO" OnValidSubmit="OnValidSubmit" />
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Rols/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@_processing" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Agregar Rol</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
 
-@code{
-    private RolDTO RolDTO = new RolDTO();
-    private SesionDTO sesionRolDTO = new SesionDTO();
+@if (Action.ToLower().Contains("modificar"))
+{
+    <EditForm Model="@rolDTO" OnSubmit="OnSubmitRol" FormName="ModificarRolForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Modificar Rol</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="rolDTO.Nombre" For="@(() => rolDTO.Nombre)" Disabled="@_loader" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Rols/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.EditNote" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Modificar Rol</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+
+@if (Action.ToLower().Contains("eliminar"))
+{
+    <EditForm Model="@rolDTO" OnSubmit="OnSubmitRol" FormName="ModificarRolForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Eliminar Rol</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="rolDTO.Nombre" For="@(() => rolDTO.Nombre)" ReadOnly="true" Variant="Variant.Outlined" />
+                        </MudItem>
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Eliminar Rol</MudText>
+                                }
+                            </MudButton>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Rols/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Info" Class="ml-auto">Cancelar</MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+
+@* <MultiSelectAutoComplete T="TestItem" @bind-Values="SelectedGrupos"
+                         SearchFunc="MySearchFunc"
+                         GetIDFunc="c => c.Id" GetNameFunc="c => c.DisplayName" /> *@
+
+@code {
+    private RolDTO rolDTO = new RolDTO();
 
     [Parameter] public string Action { get; set; }
-    [Parameter] public int IdRol { get; set; }
+    [Parameter] public int IdRol { get; set; } = 0;
 
     string variable = "";
 
-    protected override void OnInitialized()
-    {
-        if (Action.Contains("agregar"))
-        {
-            variable = Action;
-        }
-        else if (Action.Contains("eliminar"))
-        {
-            variable = Action;
-        }
-        else if (Action.Contains("modificar"))
-        {
-            variable = Action;
-        }
+    private bool _processing = false;
 
+    private bool _loader = false;
+
+    private List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
+    private List<RolDTO> listaRols = new List<RolDTO>();
+
+    // private async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string value)
+    // {
+    //     await Task.Delay(5);
+    //     return string.IsNullOrEmpty(value) ? listaUsuarios : listaUsuarios.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase) || u.Apellido.Contains(value, StringComparison.OrdinalIgnoreCase) || u.IdRolNavigation.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    // }
+
+    // private async Task<IEnumerable<RolDTO>> SearchRols(string value)
+    // {
+    //     await Task.Delay(5);
+    //     return string.IsNullOrEmpty(value) ? listaRols : listaRols.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    // }
+
+    protected async override void OnInitialized()
+    {
+        _loader = true;
+        if (Action.Contains("eliminar") || Action.Contains("modificar"))
+        {
+            try
+            {
+                rolDTO = await _rolServicio.ObtenerRol(IdRol);
+                _loader = false;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+                _navManager.NavigateTo("/rols/");
+            }
+        }
         base.OnInitialized();
     }
 
-    /*private MyModel model = new MyModel();
-    
-    [RenderValidationSummary()]
-    [RenderFluentValidationValidator]
-    public class MyModel
+    void OnSubmitRol(EditContext editContext)
     {
-        [RenderMudTextField()]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string FirstName { get; set; }
-        
-        [RenderMudTextField(Placeholder = "enter something")]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string LastName { get; set; }
+        if (editContext.Validate())
+        {
+            if (Action.ToLower().Contains("agregar")) Agregar();
+            else if (Action.ToLower().Contains("modificar")) Modificar();
+            else if (Action.ToLower().Contains("eliminar")) Eliminar();
+        }
+        else
+        {
+            Snackbar.Add("Chequee todos los campos", Severity.Warning);
+        }
+    }
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
-        public DateTime? DateOfBirth { get; set; }
-    }*/
-
-    private async void OnValidSubmit(EditContext context)
+    private async void Agregar()
     {
-        Console.WriteLine("Correcto");
-        // // Rol.NombreRol = "Profe";
-        // // Rol.Clave = "1234";
-        // // Rol.IdRol = 4;
-        // // Rol.IdRol = 4;
+        try
+        {
+            var response = await _rolServicio.AgregarRol(rolDTO);
 
-        // // sesionRol.Rol = "Administrador";
-        // // sesionRol.NombreCompleto = "Profe";
-        // // sesionRol.IdRol = 11;
+            if (response != null)
+            {
+                Snackbar.Add("Se agregó el rol", Severity.Success);
+                _navManager.NavigateTo("/rols/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
 
-        // if (RolDTO.NombreRol != null && RolDTO.Clave != null)
-        // {
-        //     var response = await _RolServicio.Buscar(RolDTO.Nombre, RolDTO.Clave);
-        //     if (response is null)
-        //     {
-        //         Snackbar.Add("No se encuentra al Rol, registrese y vuelva a intentar.", Severity.Error);
-        //     }
-        //     else
-        //     {
-        //         var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-        //         await autenticacionExt.ActualizarEstadoAutenticacion(response);
+    private async void Modificar()
+    {
+        try
+        {
+            var response = await _rolServicio.AgregarModificarRol(IdRol, rolDTO);
 
-        //         if (response.Rol.ToLower() == "administrador")
-        //         {
-        //             //toastService.ShowSuccess("Inicio exitoso.");
-        //             _navServicio.NavigateTo("/Rols/Listado");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //         }
-        //         if (!(response.Rol.ToLower() == "administrador"))
-        //         {
-        //             _navServicio.NavigateTo("/");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //             //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
-        //         }
+            if (response != null)
+            {
+                Snackbar.Add("Se modificó el rol", Severity.Success);
+                _navManager.NavigateTo("/rols/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"No se pudo modificar el rol: {ex.Message}", Severity.Error);
+        }
+    }
 
-        //         //await sessionStorage.SetItemAsync("id", Rol.Id);
-        //         //await JsRuntime.InvokeVoidAsync("location.reload");
-        //     }
-        // }
+    private async void Eliminar()
+    {
+        try
+        {
+            var response = await _rolServicio.EliminarRol(rolDTO.IdRol);
+            if (response)
+            {
+                Snackbar.Add("Se eliminó el rol", Severity.Success);
+                _navManager.NavigateTo("/rols/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"No se pudo eliminar el rol: {ex.Message}", Severity.Error);
+        }
     }
 }
-
-
-@* @code {
-    bool success;
-    string[] errors = { };
-    MudTextField<string> pwField1;
-    MudForm form;
-
-    private IEnumerable<string> PasswordStrength(string pw)
-    {
-        if (string.IsNullOrWhiteSpace(pw))
-        {
-            yield return "Password is required!";
-            yield break;
-        }
-        if (pw.Length < 8)
-            yield return "Password must be at least of length 8";
-        if (!Regex.IsMatch(pw, @"[A-Z]"))
-            yield return "Password must contain at least one capital letter";
-        if (!Regex.IsMatch(pw, @"[a-z]"))
-            yield return "Password must contain at least one lowercase letter";
-        if (!Regex.IsMatch(pw, @"[0-9]"))
-            yield return "Password must contain at least one digit";
-    }
-
-    private string PasswordMatch(string arg)
-    {
-        if (pwField1.Value != arg)
-            return "Passwords don't match";
-        return null;
-    }
-
-} *@

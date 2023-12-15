@@ -34,23 +34,30 @@
     <AuthorizeView Roles="Administrador"> 
         <MudDrawer @bind-Open="@_drawerOpen">
             <MudPaper Width="250px" Class="py-3" Elevation="0">
-                    @* <MudNavMenu>
+                    <MudNavMenu>
                
-                        <MudDivider Class="my-2" />
 
                         <MudNavLink Href="/">Inicio</MudNavLink>
+                        <MudDivider Class="my-2" />
+
+                        <MudNavGroup Title="Gestión de Proyectos" Expanded="true">
+                            <MudNavLink Href="/Proyectos/">Lista de Proyectos</MudNavLink>
+                            <MudNavLink Href="/Tareas">Lista de Tareas</MudNavLink>
+                            <MudNavLink Href="/Recursos">Lista de Recursos</MudNavLink>
+                            <MudNavLink Href="/Clientes">Lista de Clientes</MudNavLink>
+                        </MudNavGroup>
+
+                        <MudNavGroup Title="Gestión de Usuarios" Expanded="true">
+                            <MudNavLink Href="/Usuarios/">Lista de Usuarios</MudNavLink>
+                            <MudNavLink Href="/Grupos">Grupos de Usuario</MudNavLink>
+                        <MudNavLink Href="/Rols">Roles de Usuario</MudNavLink>
+                        </MudNavGroup>
 
 
-                            <MudNavGroup Title="Usuarios" Expanded="true">
-                                <MudNavLink Href="/Usuarios/Listado">Listado</MudNavLink>
-                                <MudNavLink Href="/Usuarios/Grupos">Grupos de Usuario</MudNavLink>
-                            </MudNavGroup>
+                        @* <MudNavLink Href="/about">About us</MudNavLink> *@
+                    </MudNavMenu>
 
-
-                        <MudNavLink Href="/about">About us</MudNavLink>
-                    </MudNavMenu> *@
-
-                    <DynamicNavMenu />
+                    @* <DynamicNavMenu /> *@
             </MudPaper>
         </MudDrawer>
     </AuthorizeView>

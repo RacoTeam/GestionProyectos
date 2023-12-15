@@ -70,7 +70,7 @@ namespace GestionProyectos.Server.Controllers
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "No encontrado";
+                    responseApi.Mensaje = "Cliente no encontrado";
                 }
             }
             catch (Exception ex)
@@ -116,6 +116,51 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult> ModificarCliente(int id, ClienteDTO clienteDTO)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                var dbCliente = await _dbContext.Clientes.Where(c => c.IdCliente == id).FirstOrDefaultAsync();
+
+                if (dbCliente == null)
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Cliente no encontrado";
+                    return NotFound(responseApi);
+                }
+
+                // Update properties of dbCliente with values from clienteDTO
+                _mapper.Map(clienteDTO, dbCliente);
+
+                // Clear related collections to avoid unintended updates
+                dbCliente.Proyectos = null;
+
+                _dbContext.Entry(dbCliente).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = dbCliente.IdCliente;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Manejar la excepción específica de concurrencia aquí
+                // Puedes agregar el código necesario para manejar esta situación
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = "Error de concurrencia al intentar modificar el cliente. No se suministraron las claves primarias correctamente.";
+                return StatusCode(500, responseApi);
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+                return StatusCode(500, responseApi); // Internal Server Error
+            }
+
+            return Ok(responseApi);
+        }
 
         [HttpDelete]
         [Route("{idCliente}")]
@@ -134,13 +179,12 @@ namespace GestionProyectos.Server.Controllers
                         _dbContext.Clientes.Remove(dbCliente);
                         await _dbContext.SaveChangesAsync();
 
-
                         responseApi.EsCorrecto = true;
                     }
                     else
                     {
                         responseApi.EsCorrecto = false;
-                        responseApi.Mensaje = "Cliente no encontrada";
+                        responseApi.Mensaje = "Cliente no encontrado";
                     }
                 }
                 else

@@ -33,11 +33,17 @@ namespace GestionProyectos.Server.Controllers
                 foreach (var proyecto in proyectosDb)
                 {
                     proyecto.IdClienteNavigation = _dbContext.Clientes.FirstOrDefault(c => c.IdCliente == proyecto.IdCliente);
-                    proyecto.IdClienteNavigation.Proyectos = null;
+                    if (proyecto.IdClienteNavigation != null)
+                    {
+                        proyecto.IdClienteNavigation.Proyectos = null;
+                    }
 
                     proyecto.IdUsuarioNavigation = _dbContext.Usuarios.FirstOrDefault(u => u.IdUsuario == proyecto.IdUsuario);
-                    proyecto.IdUsuarioNavigation.Proyectos = null;
-
+                    
+                    if (proyecto.IdUsuarioNavigation != null)
+                    {
+                        proyecto.IdUsuarioNavigation.Proyectos = null;
+                    }
 
                     listaProyectosDTO.Add(_mapper.Map<ProyectoDTO>(proyecto));
                 }
@@ -82,7 +88,7 @@ namespace GestionProyectos.Server.Controllers
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "No encontrado";
+                    responseApi.Mensaje = "Proyecto no encontrado";
                 }
             }
             catch (Exception ex)
@@ -119,13 +125,58 @@ namespace GestionProyectos.Server.Controllers
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "No guardado";
+                    responseApi.Mensaje = "Proyecto no guardado";
                 }
             }
             catch (Exception ex)
             {
                 responseApi.EsCorrecto = false;
                 responseApi.Mensaje = ex.Message;
+            }
+
+            return Ok(responseApi);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> ModificarProyecto(int id, ProyectoDTO proyectoDTO)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                var dbProyecto = await _dbContext.Proyectos
+                    .Include(p => p.IdClienteNavigation)
+                    .Include(p => p.IdUsuarioNavigation)
+                    .Where(p => p.IdProyecto == id)
+                    .FirstOrDefaultAsync();
+
+                if (dbProyecto == null)
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Proyecto no encontrado";
+                    return NotFound(responseApi);
+                }
+
+                // Update properties of dbProyecto with values from proyectoDTO
+                _mapper.Map(proyectoDTO, dbProyecto);
+
+                // Clear related collections to avoid unintended updates
+                dbProyecto.IdClienteNavigation = null;
+                dbProyecto.IdUsuarioNavigation = null;
+                dbProyecto.Tareas = null;
+                dbProyecto.Grupos = null;
+
+                _dbContext.Entry(dbProyecto).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = dbProyecto.IdProyecto;
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+                return StatusCode(500, responseApi); // Internal Server Error
             }
 
             return Ok(responseApi);
@@ -146,13 +197,12 @@ namespace GestionProyectos.Server.Controllers
                     _dbContext.Proyectos.Remove(dbProyecto);
                     await _dbContext.SaveChangesAsync();
 
-
                     responseApi.EsCorrecto = true;
                 }
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "Proyecto no encontrada";
+                    responseApi.Mensaje = "Proyecto no encontrado";
                 }
 
             }

@@ -7,6 +7,7 @@ namespace GestionProyectos.Client.Services.Contrato
         Task<List<RolDTO>> ListarRols();
         Task<RolDTO> ObtenerRol(int id);
         Task<int> AgregarRol(RolDTO Rol);
+        Task<int> AgregarModificarRol(int idRol, RolDTO rol);
         Task<bool> EliminarRol(int id);
     }
 }

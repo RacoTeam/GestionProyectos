@@ -133,7 +133,7 @@
                             <MudItem xs="6">
                                 <MudAutocomplete T="UsuarioDTO" Label="Usuario" @bind-Value="proyectoDTO.IdUsuarioNavigation" For="@(() => proyectoDTO.IdUsuarioNavigation)"
                                                  Disabled="@_loader"
-                                                 SearchFunc="@SearchUsuarios" ToStringFunc="@(u=> u==null?null : $"{u.Nombre} {u.Apellido} ({u.IdRolNavigation.Nombre})")">
+                                                 SearchFunc="@SearchUsuarios" ToStringFunc="@(u=> u==null?null : $"{u.Nombre} {u.Apellido} ({(u.IdRolNavigation?.Nombre != null ? u.IdRolNavigation?.Nombre : "Sin Rol")})")">
                                     <NoItemsTemplate>
                                         <MudText Align="Align.Center" Class="px-4 py-1">
                                             No se encontraron usuarios
@@ -243,19 +243,11 @@
             try
             {
                 listaUsuarios = await _usuarioServicio.ListarUsuarios();
-            }
-            catch
-            {
-                Snackbar.Add("No se pudieron obtener usuarios", Severity.Error);
-            }
-
-            try
-            {
                 listaClientes = await _clienteServicio.ListarClientes();
             }
-            catch
+            catch (Exception ex)
             {
-                Snackbar.Add("No se pudieron obtener clientes", Severity.Error);
+                Snackbar.Add(ex.Message, Severity.Error);
             }
 
             if (Action.Contains("modificar"))
@@ -263,6 +255,9 @@
                 try
                 {
                     proyectoDTO = await _proyectoServicio.ObtenerProyecto(IdProyecto);
+                    if (proyectoDTO.IdUsuario.HasValue){
+                        proyectoDTO.IdUsuarioNavigation = await _usuarioServicio.ObtenerUsuario(proyectoDTO.IdUsuario.Value); ;
+                    }
                     _loader = false;
 
                     StateHasChanged();
@@ -282,22 +277,6 @@
         base.OnInitialized();
     }
 
-    private async void Agregar()
-    {
-        try
-        {
-            var response = await _proyectoServicio.AgregarProyecto(proyectoDTO);
-
-            if (response != null)
-            {
-                Snackbar.Add("Se agregó el proyecto", Severity.Success);
-            }
-        }
-        catch
-        {
-            Snackbar.Add("No se pudo agregar el proyecto", Severity.Error);
-        }
-    }
 
     void OnSubmitProyecto(EditContext editContext)
     {
@@ -306,10 +285,12 @@
         {
             proyectoDTO.IdUsuario = proyectoDTO.IdUsuarioNavigation.IdUsuario;
             proyectoDTO.IdCliente = proyectoDTO.IdClienteNavigation.IdCliente;
-            
+
             if (editContext.Validate())
             {
-                Agregar();
+                if (Action.ToLower().Contains("agregar")) Agregar();
+                else if (Action.ToLower().Contains("modificar")) Modificar();
+                else if (Action.ToLower().Contains("eliminar")) Eliminar();
             }
             else
             {
@@ -322,16 +303,39 @@
         }
     }
 
+    private async void Agregar()
+    {
+        try
+        {
+            var response = await _proyectoServicio.AgregarProyecto(proyectoDTO);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se agregó el proyecto", Severity.Success);
+                _navManager.NavigateTo("/proyectos/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
     private async void Modificar()
     {
         try
         {
-            // var response = await _proyectoServicio.ModificarProyecto(proyectoDTO);
-            Console.WriteLine("Se intenta modificar xd");
+            var response = await _proyectoServicio.AgregarModificarProyecto(IdProyecto, proyectoDTO);
+
+            if (response != null)
+            {
+                Snackbar.Add("Se modificó el proyecto", Severity.Success);
+                _navManager.NavigateTo("/proyectos/");
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            Snackbar.Add("No se pudo agregar el proyecto", Severity.Error);
+            Snackbar.Add(ex.Message, Severity.Error);
         }
     }
 
@@ -341,28 +345,9 @@
         {
             var response = await _proyectoServicio.EliminarProyecto(proyectoDTO.IdProyecto);
         }
-        catch
+        catch (Exception ex)
         {
-            Snackbar.Add("No se pudo agregar el proyecto", Severity.Error);
+            Snackbar.Add(ex.Message, Severity.Error);
         }
     }
-
-    /*private MyModel model = new MyModel();
-    
-    [RenderValidationSummary()]
-    [RenderFluentValidationValidator]
-    public class MyModel
-    {
-        [RenderMudTextField()]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string FirstName { get; set; }
-        
-        [RenderMudTextField(Placeholder = "enter something")]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string LastName { get; set; }
-
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
-        public DateTime? DateOfBirth { get; set; }
-    }*/
 }

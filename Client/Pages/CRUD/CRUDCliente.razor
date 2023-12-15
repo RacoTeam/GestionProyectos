@@ -66,7 +66,7 @@
 
                         <MudCardActions>
                             <MudButton ButtonType="ButtonType.Button" Href="/Clientes/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
-                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.EditNote" Color="Color.Info">
                                 @if (_processing)
                                 {
                                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -102,12 +102,11 @@
                     <MudStack Spacing="3">
                         <MudText Typo="Typo.h4">Eliminar Cliente</MudText>
                         <MudItem>
-                            <MudTextField T="string" Label="Nombre" @bind-Value="clienteDTO.Nombre" For="@(() => clienteDTO.Nombre)" Disabled="@_loader" Variant="Variant.Outlined" />
+                            <MudTextField T="string" Label="Nombre" @bind-Value="clienteDTO.Nombre" For="@(() => clienteDTO.Nombre)" ReadOnly="true" Variant="Variant.Outlined" />
                         </MudItem>
 
                         <MudCardActions>
-                            <MudButton ButtonType="ButtonType.Button" Href="/Clientes/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
-                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">
                                 @if (_processing)
                                 {
                                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -115,9 +114,10 @@
                                 }
                                 else
                                 {
-                                    <MudText>Modificar Cliente</MudText>
+                                    <MudText>Eliminar Cliente</MudText>
                                 }
                             </MudButton>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Clientes/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Info" Class="ml-auto">Cancelar</MudButton>
                         </MudCardActions>
                     </MudStack>
                 </MudPaper>
@@ -152,63 +152,52 @@
     private List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
     private List<ClienteDTO> listaClientes = new List<ClienteDTO>();
 
-    private async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string value)
-    {
-        await Task.Delay(5);
-        return string.IsNullOrEmpty(value) ? listaUsuarios : listaUsuarios.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase) || u.Apellido.Contains(value, StringComparison.OrdinalIgnoreCase) || u.IdRolNavigation.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
-    }
+    // private async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string value)
+    // {
+    //     await Task.Delay(5);
+    //     return string.IsNullOrEmpty(value) ? listaUsuarios : listaUsuarios.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase) || u.Apellido.Contains(value, StringComparison.OrdinalIgnoreCase) || u.IdRolNavigation.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    // }
 
-    private async Task<IEnumerable<ClienteDTO>> SearchClientes(string value)
-    {
-        await Task.Delay(5);
-        return string.IsNullOrEmpty(value) ? listaClientes : listaClientes.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
-    }
+    // private async Task<IEnumerable<ClienteDTO>> SearchClientes(string value)
+    // {
+    //     await Task.Delay(5);
+    //     return string.IsNullOrEmpty(value) ? listaClientes : listaClientes.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    // }
 
     protected async override void OnInitialized()
     {
-        if (Action.Contains("agregar") || Action.Contains("modificar"))
+        _loader = true;
+        if (Action.Contains("eliminar") || Action.Contains("modificar"))
         {
-            _loader = true;
             try
             {
-                listaUsuarios = await _usuarioServicio.ListarUsuarios();
-            }
-            catch
-            {
-                Snackbar.Add("No se pudieron obtener usuarios", Severity.Error);
-            }
+                clienteDTO = await _clienteServicio.ObtenerCliente(IdCliente);
+                _loader = false;
 
-            try
-            {
-                listaClientes = await _clienteServicio.ListarClientes();
+                StateHasChanged();
             }
-            catch
+            catch (Exception ex)
             {
-                Snackbar.Add("No se pudieron obtener clientes", Severity.Error);
+                Snackbar.Add(ex.Message, Severity.Error);
+                _navManager.NavigateTo("/clientes/");
             }
-
-            if (Action.Contains("modificar"))
-            {
-                try
-                {
-                    clienteDTO = await _clienteServicio.ObtenerCliente(IdCliente);
-                    _loader = false;
-
-                    StateHasChanged();
-                }
-                catch
-                {
-                    Snackbar.Add("No se logró obtener el cliente", Severity.Error);
-                    _navManager.NavigateTo("/clientes/");
-                }
-            }
-        }
-        else if (Action.Contains("eliminar"))
-        {
-            variable = Action;
         }
 
         base.OnInitialized();
+    }
+
+    void OnSubmitCliente(EditContext editContext)
+    {
+        if (editContext.Validate())
+        {
+            if (Action.ToLower().Contains("agregar")) Agregar();
+            else if (Action.ToLower().Contains("modificar")) Modificar();
+            else if (Action.ToLower().Contains("eliminar")) Eliminar();
+        }
+        else
+        {
+            Snackbar.Add("Chequee todos los campos", Severity.Warning);
+        }
     }
 
     private async void Agregar()
@@ -220,23 +209,12 @@
             if (response != null)
             {
                 Snackbar.Add("Se agregó el cliente", Severity.Success);
+                _navManager.NavigateTo("/clientes/");
             }
         }
-        catch
+        catch (Exception ex)
         {
-            Snackbar.Add("No se pudo agregar el cliente", Severity.Error);
-        }
-    }
-
-    void OnSubmitCliente(EditContext editContext)
-    {
-        if (editContext.Validate())
-        {
-            Agregar();
-        }
-        else
-        {
-            Snackbar.Add("Chequee todos los campos", Severity.Warning);
+            Snackbar.Add(ex.Message, Severity.Error);
         }
     }
 
@@ -244,12 +222,17 @@
     {
         try
         {
-            // var response = await _clienteServicio.ModificarCliente(clienteDTO);
-            Console.WriteLine("Se intenta modificar xd");
+            var response = await _clienteServicio.AgregarModificarCliente(IdCliente, clienteDTO);
+            
+            if (response != null)
+            {
+                Snackbar.Add("Se modificó el cliente", Severity.Success);
+                _navManager.NavigateTo("/clientes/");
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            Snackbar.Add("No se pudo agregar el cliente", Severity.Error);
+            Snackbar.Add($"No se pudo modificar el cliente: {ex.Message}", Severity.Error);
         }
     }
 
@@ -258,29 +241,15 @@
         try
         {
             var response = await _clienteServicio.EliminarCliente(clienteDTO.IdCliente);
+            if (response)
+            {
+                Snackbar.Add("Se eliminó el cliente", Severity.Success);
+                _navManager.NavigateTo("/clientes/");
+            }
         }
         catch (Exception ex)
         {
-            Snackbar.Add(ex.Message, Severity.Error);
+            Snackbar.Add($"No se pudo eliminar el cliente: {ex.Message}", Severity.Error);
         }
     }
-
-    /*private MyModel model = new MyModel();
-    
-    [RenderValidationSummary()]
-    [RenderFluentValidationValidator]
-    public class MyModel
-    {
-        [RenderMudTextField()]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string FirstName { get; set; }
-        
-        [RenderMudTextField(Placeholder = "enter something")]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string LastName { get; set; }
-
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
-        public DateTime? DateOfBirth { get; set; }
-    }*/
 }

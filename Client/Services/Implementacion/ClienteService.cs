@@ -44,6 +44,33 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(response.Mensaje);
         }
 
+        public async Task<int> AgregarModificarCliente(int idCliente, ClienteDTO cliente)
+        {
+            HttpResponseMessage result;
+
+            if (cliente.IdCliente == cliente.IdCliente)
+            {
+                // Si el cliente tiene un Id, se trata de una modificación
+                result = await _httpClient.PutAsJsonAsync($"api/Cliente/{idCliente}", cliente);
+            }
+            else
+            {
+                // Si el cliente no tiene un Id válido, se trata de una adición
+                result = await _httpClient.PostAsJsonAsync("api/Cliente", cliente);
+            }
+
+            var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
+
+            if (response!.EsCorrecto)
+            {
+                return response.Valor!;
+            }
+            else
+            {
+                throw new Exception(response.Mensaje);
+            }
+        }
+
         public async Task<bool> EliminarCliente(int id)
         {
             var result = await _httpClient.DeleteAsync($"api/Cliente/{id}");

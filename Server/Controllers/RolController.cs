@@ -113,6 +113,51 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult> ModificarRol(int id, RolDTO rolDTO)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                var dbRol = await _dbContext.Rols.Where(c => c.IdRol == id).FirstOrDefaultAsync();
+
+                if (dbRol == null)
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Rol no encontrado";
+                    return NotFound(responseApi);
+                }
+
+                // Update properties of dbRol with values from rolDTO
+                _mapper.Map(rolDTO, dbRol);
+
+                // Clear related collections to avoid unintended updates
+                dbRol.Usuarios = null;
+
+                _dbContext.Entry(dbRol).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = dbRol.IdRol;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Manejar la excepción específica de concurrencia aquí
+                // Puedes agregar el código necesario para manejar esta situación
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = "Error de concurrencia al intentar modificar el rol. No se suministraron las claves primarias correctamente.";
+                return StatusCode(500, responseApi);
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+                return StatusCode(500, responseApi); // Internal Server Error
+            }
+
+            return Ok(responseApi);
+        }
 
         [HttpDelete]
         [Route("{idRol}")]
@@ -122,26 +167,30 @@ namespace GestionProyectos.Server.Controllers
 
             try
             {
-                var dbRol = await _dbContext.Rols.FirstOrDefaultAsync(f => f.IdRol == idRol);
-
-                if (dbRol != null)
+                var dbUsuarios = await _dbContext.Usuarios.Where(r => r.IdRol == idRol).ToListAsync();
+                if (!dbUsuarios.Any())
                 {
-                    _dbContext.Rols.Remove(dbRol);
-                    await _dbContext.SaveChangesAsync();
+                    var dbRol = await _dbContext.Rols.FirstOrDefaultAsync(f => f.IdRol == idRol);
+                    if (dbRol != null)
+                    {
+                        _dbContext.Rols.Remove(dbRol);
+                        await _dbContext.SaveChangesAsync();
 
-
-                    responseApi.EsCorrecto = true;
+                        responseApi.EsCorrecto = true;
+                    }
+                    else
+                    {
+                        responseApi.EsCorrecto = false;
+                        responseApi.Mensaje = "Rol no encontrado";
+                    }
                 }
                 else
                 {
-                    responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "Rol no encontrada";
+                    throw new Exception("Elimine los usuarios del rol previamente");
                 }
-
             }
             catch (Exception ex)
             {
-
                 responseApi.EsCorrecto = false;
                 responseApi.Mensaje = ex.Message;
             }

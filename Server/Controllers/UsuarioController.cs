@@ -105,7 +105,7 @@ namespace GestionProyectos.Server.Controllers
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "No encontrado";
+                    responseApi.Mensaje = "No se encontró el usuario";
                 }
             }
             catch (Exception ex)

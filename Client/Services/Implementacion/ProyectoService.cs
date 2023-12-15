@@ -45,6 +45,36 @@ namespace GestionProyectos.Client.Services.Implementacion
                 throw new Exception(response.Mensaje);
         }
 
+        public async Task<int> AgregarModificarProyecto(int idProyecto, ProyectoDTO proyectoDTO)
+        {
+            proyectoDTO.IdClienteNavigation = null;
+            proyectoDTO.IdUsuarioNavigation = null;
+
+            HttpResponseMessage result;
+
+            if (proyectoDTO.IdProyecto != 0)
+            {
+                // Si el proyecto tiene un Id, se trata de una modificación
+                result = await _httpClient.PutAsJsonAsync($"api/Proyecto/{idProyecto}", proyectoDTO);
+            }
+            else
+            {
+                result = await _httpClient.PostAsJsonAsync("api/Proyecto", proyectoDTO);
+            }
+
+            var response = await result.Content.ReadFromJsonAsync<ResponseAPI<int>>();
+
+            if (response!.EsCorrecto)
+            {
+                return response.Valor!;
+            }
+            else
+            {
+                throw new Exception(response.Mensaje);
+            }
+        }
+
+
         public async Task<bool> EliminarProyecto(int id)
         {
             var result = await _httpClient.DeleteAsync($"api/Proyecto/{id}");

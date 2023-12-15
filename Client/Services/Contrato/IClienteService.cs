@@ -7,6 +7,7 @@ namespace GestionProyectos.Client.Services.Contrato
         Task<List<ClienteDTO>> ListarClientes();
         Task<ClienteDTO> ObtenerCliente(int id);
         Task<int> AgregarCliente(ClienteDTO Cliente);
+        Task<int> AgregarModificarCliente(int idCliente, ClienteDTO cliente);
         Task<bool> EliminarCliente(int id);
     }
 }
