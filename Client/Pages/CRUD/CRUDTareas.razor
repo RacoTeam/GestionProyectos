@@ -1,154 +1,309 @@
 ﻿@page "/Tareas/{action}/{IdTarea:int}"
-
+@page "/Tareas/{action}/proyecto/{IdProyecto:int}"
 <PageTitle>Tarea</PageTitle>
 
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
-@using CG.Blazor.Forms
 @using CurrieTechnologies.Razor.SweetAlert2;
 @using GestionProyectos.Shared.Models;
-@using Microsoft.AspNetCore.Components.Authorization
-@using GestionProyectos.Client.Extensions;
 @using GestionProyectos.Client.Services.Contrato;
+@using GestionProyectos.Client.Shared.MultiSelectAutoComplete;
 
 @inject ITareaService _tareaServicio;
-@inject NavigationManager _navServicio;
+@inject IUsuarioGrupoService _usuariogrupoServicio;
+@inject IUsuarioService _usuarioServicio;
+@inject NavigationManager _navManager;
 @inject ISnackbar Snackbar;
-@inject AuthenticationStateProvider autenticacionProvider;
-@inject SweetAlertService Swal;
-@* 
-if varAgregar then
-<DynamicForm Model="@TareaDTO" OnValidSubmit="Agregar" />
 
-if modificar then
-<DynamicForm Model="@TareaDTO" OnValidSubmit="Agregar" /> *@
+@if (Action.ToLower().Contains("agregar"))
+{
+    <EditForm Model="@tareaDTO" OnSubmit="OnSubmitTarea" FormName="AgregarTareaForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Agregar Tarea</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="tareaDTO.Nombre" For="@(() => tareaDTO.Nombre)" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField T="string" Label="Descripción" @bind-Value="tareaDTO.Descripcion" For="@(() => tareaDTO.Descripcion)" Variant="Variant.Outlined" Lines="3" />
+                        </MudItem>
 
-<div>
-    @variable
-</div>
+                        <MudGrid>
+                            <MudItem xs="6">
+                                <MudDatePicker Label="Fecha de Inicio" Editable="true" @bind-Date="tareaDTO.FechaInicio" For="@(() => tareaDTO.FechaInicio)" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudDatePicker Label="Fecha de Finalización" Editable="true" @bind-Date="tareaDTO.FechaFin" For="@(() => tareaDTO.FechaFin)" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
+                            </MudItem>
+                        </MudGrid>
 
-<DynamicForm Model="@TareaDTO" OnValidSubmit="OnValidSubmit" />
+                        <MudItem>
+                            <MudTextField T="double?" Label="Avance" @bind-Value="tareaDTO.Avance" For="@(() => tareaDTO.Avance)" Variant="Variant.Outlined" />
+                        </MudItem>
 
-@code{
-    private TareaDTO TareaDTO = new TareaDTO();
-    private SesionDTO sesionTareaDTO = new SesionDTO();
+                        <MudItem>
+                            <MultiSelectAutoComplete T="UsuarioDTO" @bind-Values="usuariosSeleccionados"
+                                                     SearchFunc="SearchUsuarios"
+                                                     GetIDFunc="c => c.IdUsuario" GetNameFunc="c => c.Nombre" />
+                        </MudItem>
 
-    [Parameter] public string Action { get; set; }
-    [Parameter] public int? IdTarea { get; set; }
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Tareas/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@_processing" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Agregar Tarea</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                @* <ValidationSummary /> *@
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+@*
+@if (Action.ToLower().Contains("modificar"))
+{
+    <EditForm Model="@tareaDTO" OnSubmit="OnSubmitTarea" FormName="ModificarTareaForm">
+        <DataAnnotationsValidator />
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="7">
+                <MudPaper Class="pa-4">
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h4">Modificar Tarea</MudText>
+                        <MudItem>
+                            <MudTextField T="string" Label="Nombre" @bind-Value="tareaDTO.Nombre" For="@(() => tareaDTO.Nombre)" Disabled="@_loader" Variant="Variant.Outlined" />
+                        </MudItem>
+                        <MudItem>
+                            <MudTextField T="string" Label="Descripción" @bind-Value="tareaDTO.Descripcion" For="@(() => tareaDTO.Descripcion)" Disabled="@_loader" Variant="Variant.Outlined" Lines="3" />
+                        </MudItem>
+
+                        <MudGrid>
+                            <MudItem xs="6">
+                                <MudDatePicker Label="Fecha de Inicio" Editable="true" @bind-Date="tareaDTO.FechaInicio" For="@(() => tareaDTO.FechaInicio)" Disabled="@_loader" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudDatePicker Label="Fecha de Finalización" Editable="true" @bind-Date="tareaDTO.FechaFin" For="@(() => tareaDTO.FechaFin)" Disabled="@_loader" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
+                            </MudItem>
+                        </MudGrid>
+
+                        <MudGrid>
+                            <MudItem xs="6">
+                                <MudAutocomplete T="UsuarioDTO" Label="Usuario" Error="@_errorUsuario" @onclick="@(() => _errorUsuario = false)" @bind-Value="tareaDTO.IdUsuarioNavigation" For="@(() => tareaDTO.IdUsuarioNavigation)"
+                                                 Disabled="@_loader"
+                                                 SearchFunc="@SearchUsuarios" ToStringFunc="@(u=> u==null?null : $"{u.Nombre} {u.Apellido} ({(u.IdRolNavigation?.Nombre != null ? u.IdRolNavigation?.Nombre : "Sin Rol")})")">
+                                    <NoItemsTemplate>
+                                        <MudText Align="Align.Center" Class="px-4 py-1">
+                                            No se encontraron usuarios
+                                        </MudText>
+                                        <div class="pa-2">
+                                            <MudButton Href="/Usuarios/agregar/0" Color="Color.Primary">Añadir Usuario</MudButton>
+                                        </div>
+                                    </NoItemsTemplate>
+                                    <AfterItemsTemplate>
+                                        <div class="pa-2">
+                                            <MudButton Href="/Usuarios/agregar/0" Color="Color.Primary">Añadir Usuario</MudButton>
+                                        </div>
+                                    </AfterItemsTemplate>
+                                </MudAutocomplete>
+                            </MudItem>
+
+                            <MudItem xs="6">
+                                <MudAutocomplete T="ClienteDTO" Label="Cliente" Error="@_errorCliente" @onclick="@(() => _errorCliente = false)" @bind-Value="tareaDTO.IdClienteNavigation" For="@(() => tareaDTO.IdClienteNavigation)"
+                                                 Disabled="@_loader"
+                                                 SearchFunc="@SearchClientes" ToStringFunc="@(c=> c==null?null : $"{c.Nombre}")">
+                                    <NoItemsTemplate>
+                                        <MudText Align="Align.Center" Class="px-4 py-1">
+                                            No se encontraron usuarios
+                                        </MudText>
+                                        <div class="pa-2">
+                                            <MudButton Href="/Clientes/agregar/0" Color="Color.Primary">Añadir Cliente</MudButton>
+                                        </div>
+                                    </NoItemsTemplate>
+                                    <AfterItemsTemplate>
+                                        <div class="pa-2">
+                                            <MudButton Href="/Clientes/agregar/0" Color="Color.Primary">Añadir Cliente</MudButton>
+                                        </div>
+                                    </AfterItemsTemplate>
+                                </MudAutocomplete>
+                            </MudItem>
+                        </MudGrid>
+
+                        <MudCardActions>
+                            <MudButton ButtonType="ButtonType.Button" Href="/Tareas/" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Disabled="@(_loader || _processing)" Variant="Variant.Filled" Class="ml-auto" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Procesando</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Modificar Tarea</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudStack>
+                </MudPaper>
+                <MudItem xs="12" Class="text-center">
+                    @if (_loader)
+                    {
+                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    }
+                </MudItem>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+*@
+@if (Action.ToLower().Contains("eliminar"))
+{
+
+}
+
+@* <MultiSelectAutoComplete T="TestItem" @bind-Values="SelectedGrupos"
+                         SearchFunc="MySearchFunc"
+                         GetIDFunc="c => c.Id" GetNameFunc="c => c.DisplayName" /> *@
+
+@code {
+    private TareaDTO tareaDTO = new TareaDTO();
+
+    [Parameter] public string? Action { get; set; }
+    [Parameter] public int IdProyecto { get; set; } = 0;
+    [Parameter] public int IdTarea { get; set; } = 0;
 
     string variable = "";
 
-    protected override void OnInitialized()
+    private bool _processing = false;
+
+    private bool _loader = false;
+
+    private bool _errorUsuario = false;
+    private bool _errorCliente = false;
+
+    private List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
+    public IEnumerable<UsuarioDTO> usuariosSeleccionados = new List<UsuarioDTO>();
+
+    private List<UsuarioGrupoDTO> listaUsuariosGrupos = new List<UsuarioGrupoDTO>();
+
+    public async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string search)
     {
-        if (Action.Contains("agregar"))
+        if (string.IsNullOrEmpty(search))
         {
-            variable = Action;
+            return listaUsuarios;
         }
-        else if (Action.Contains("eliminar"))
+        return await Task.FromResult(listaUsuarios.Where(u => u.Nombre.Contains(search, StringComparison.OrdinalIgnoreCase) || u.Apellido.Contains(search, StringComparison.OrdinalIgnoreCase) || u.IdRolNavigation.Nombre.Contains(search, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    protected async override void OnInitialized()
+    {
+        _loader = true;
+        
+        tareaDTO = await _tareaServicio.ObtenerTarea(IdTarea);
+        listaUsuarios = await _usuarioServicio.ListarUsuarios();
+        listaUsuariosGrupos = await _usuariogrupoServicio.ListarUsuarioGrupos();
+
+        int? idProyectoDeTarea = tareaDTO.IdProyecto;
+
+        // 1. Filtra los UsuarioGrupos por el IdProyecto
+        var usuarioGruposEnProyecto = listaUsuariosGrupos.Where(ug => ug.IdProyecto == idProyectoDeTarea);
+
+        // 2. Extrae los IdUsuario de los UsuarioGrupoDTO filtrados
+        var idUsuariosEnProyecto = usuarioGruposEnProyecto.Select(ug => ug.IdUsuario).ToList();
+
+        // 3. Filtra la lista de usuarios por los IdUsuario obtenidos
+        var usuariosRelacionados = listaUsuarios.Where(u => idUsuariosEnProyecto.Contains(u.IdUsuario)).ToList();
+
+        if (Action.Contains("eliminar") || Action.Contains("modificar"))
         {
-            variable = Action;
-        }
-        else if (Action.Contains("modificar"))
-        {
-            variable = Action;
+            try
+            {
+
+                _loader = false;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+                _navManager.NavigateTo("/clientes/");
+            }
         }
 
         base.OnInitialized();
     }
 
-    /*private MyModel model = new MyModel();
-    
-    [RenderValidationSummary()]
-    [RenderFluentValidationValidator]
-    public class MyModel
+
+    void OnSubmitTarea(EditContext editContext)
     {
-        [RenderMudTextField()]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string FirstName { get; set; }
-        
-        [RenderMudTextField(Placeholder = "enter something")]
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string LastName { get; set; }
+        if (editContext.Validate())
+        {
+            if (Action.ToLower().Contains("agregar")) Agregar();
+            else if (Action.ToLower().Contains("modificar")) Modificar();
+            else if (Action.ToLower().Contains("eliminar")) Eliminar();
+        }
+        else
+        {
+            Snackbar.Add("Chequeé todos los campos", Severity.Warning);
+        }
+    }
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RenderMudDatePicker(Color = MudBlazor.Color.Secondary)]
-        public DateTime? DateOfBirth { get; set; }
-    }*/
-
-    private async void OnValidSubmit(EditContext context)
+    private async void Agregar()
     {
-        Console.WriteLine("Correcto");
-        // // Tarea.NombreTarea = "Profe";
-        // // Tarea.Clave = "1234";
-        // // Tarea.IdTarea = 4;
-        // // Tarea.IdRol = 4;
+        try
+        {
+            var response = await _tareaServicio.AgregarTarea(tareaDTO);
 
-        // // sesionTarea.Rol = "Administrador";
-        // // sesionTarea.NombreCompleto = "Profe";
-        // // sesionTarea.IdTarea = 11;
+            if (response != null)
+            {
+                Snackbar.Add("Se agregó la tarea", Severity.Success);
+                _navManager.NavigateTo("/tareas/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
 
-        // if (TareaDTO.NombreTarea != null && TareaDTO.Clave != null)
-        // {
-        //     var response = await _TareaServicio.Buscar(TareaDTO.Nombre, TareaDTO.Clave);
-        //     if (response is null)
-        //     {
-        //         Snackbar.Add("No se encuentra al Tarea, registrese y vuelva a intentar.", Severity.Error);
-        //     }
-        //     else
-        //     {
-        //         var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
-        //         await autenticacionExt.ActualizarEstadoAutenticacion(response);
+    private async void Modificar()
+    {
+        try
+        {
+            /*var response = await _tareaServicio.AgregarModificarTarea(IdTarea, tareaDTO);
 
-        //         if (response.Rol.ToLower() == "administrador")
-        //         {
-        //             //toastService.ShowSuccess("Inicio exitoso.");
-        //             _navServicio.NavigateTo("/Tareas/Listado");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //         }
-        //         if (!(response.Rol.ToLower() == "administrador"))
-        //         {
-        //             _navServicio.NavigateTo("/");
-        //             Snackbar.Add("Inicio Exitoso", Severity.Info);
-        //             //toastService.ShowSuccess("Inicio Sesion sin ser Administrador");
-        //         }
+            if (response != null)
+            {
+                Snackbar.Add("Se modificó la tarea", Severity.Success);
+                _navManager.NavigateTo("/tareas/");
+            }*/
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
 
-        //         //await sessionStorage.SetItemAsync("id", Tarea.Id);
-        //         //await JsRuntime.InvokeVoidAsync("location.reload");
-        //     }
-        // }
+    private async void Eliminar()
+    {
+        try
+        {
+            var response = await _tareaServicio.EliminarTarea(tareaDTO.IdTarea);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
     }
 }
-
-
-@* @code {
-    bool success;
-    string[] errors = { };
-    MudTextField<string> pwField1;
-    MudForm form;
-
-    private IEnumerable<string> PasswordStrength(string pw)
-    {
-        if (string.IsNullOrWhiteSpace(pw))
-        {
-            yield return "Password is required!";
-            yield break;
-        }
-        if (pw.Length < 8)
-            yield return "Password must be at least of length 8";
-        if (!Regex.IsMatch(pw, @"[A-Z]"))
-            yield return "Password must contain at least one capital letter";
-        if (!Regex.IsMatch(pw, @"[a-z]"))
-            yield return "Password must contain at least one lowercase letter";
-        if (!Regex.IsMatch(pw, @"[0-9]"))
-            yield return "Password must contain at least one digit";
-    }
-
-    private string PasswordMatch(string arg)
-    {
-        if (pwField1.Value != arg)
-            return "Passwords don't match";
-        return null;
-    }
-
-} *@

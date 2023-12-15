@@ -75,10 +75,16 @@ namespace GestionProyectos.Server.Controllers
                 if (dbProyecto != null)
                 {
                     dbProyecto.IdClienteNavigation = _dbContext.Clientes.FirstOrDefault(c => c.IdCliente == dbProyecto.IdCliente);
-                    dbProyecto.IdClienteNavigation.Proyectos = null;
+                    if (dbProyecto.IdClienteNavigation != null)
+                    {
+                        dbProyecto.IdClienteNavigation.Proyectos = null;
+                    }
 
                     dbProyecto.IdUsuarioNavigation = _dbContext.Usuarios.FirstOrDefault(u => u.IdUsuario == dbProyecto.IdUsuario);
-                    dbProyecto.IdUsuarioNavigation.Proyectos = null;
+                    if (dbProyecto.IdUsuarioNavigation != null)
+                    {
+                        dbProyecto.IdUsuarioNavigation.Proyectos = null;
+                    }
 
                     proyectoDTO = _mapper.Map<ProyectoDTO>(dbProyecto);
 
