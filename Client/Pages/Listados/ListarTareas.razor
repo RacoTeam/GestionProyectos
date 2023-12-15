@@ -59,7 +59,7 @@
             @bind-SelectedItem="selectedItem1" SortLabel="Ordenar por" EditTrigger="TableEditTrigger.EditButton">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">Listado de Tareas</MudText>
-                    <MudIconButton Href="/Tareas/agregar/0"
+            <MudIconButton Href="@($"/Tareas/agregar/proyecto/{IdProyecto}")"
                                Variant="Variant.Filled"
                                Icon="@Icons.Material.Filled.AddCircle"
                                Color="Color.Primary" Class="ms-2"></MudIconButton>

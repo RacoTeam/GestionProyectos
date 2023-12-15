@@ -44,8 +44,9 @@
 
                     <MudGrid>
                         <MudItem xs="6">
-                                <MudAutocomplete T="UsuarioDTO" Label="Usuario" @bind-Value="proyectoDTO.IdUsuarioNavigation" For="@(() => proyectoDTO.IdUsuarioNavigation)"
-                                                 SearchFunc="@SearchUsuarios" ToStringFunc="@(u=> u==null?null : $"{u.Nombre} {u.Apellido} ({u.IdRolNavigation.Nombre})")">
+                                <MudAutocomplete T="UsuarioDTO" Label="Usuario" Error="@_errorUsuario" @onclick="@(() => _errorUsuario = false)"
+                                @bind-Value="proyectoDTO.IdUsuarioNavigation" For="@(() => proyectoDTO.IdUsuarioNavigation)"
+                                 SearchFunc="@SearchUsuarios" ToStringFunc="@(u=> u==null?null : $"{u.Nombre} {u.Apellido} ({u.IdRolNavigation.Nombre})")">
                                 <NoItemsTemplate>
                                     <MudText Align="Align.Center" Class="px-4 py-1">
                                         No se encontraron usuarios
@@ -63,8 +64,9 @@
                         </MudItem>
 
                         <MudItem xs="6">
-                            <MudAutocomplete T="ClienteDTO" Label="Cliente" @bind-Value="proyectoDTO.IdClienteNavigation" For="@(() => proyectoDTO.IdClienteNavigation)"
-                                                 SearchFunc="@SearchClientes" ToStringFunc="@(u=> u==null?null : $"{u.Nombre}")">
+                                <MudAutocomplete T="ClienteDTO" Label="Cliente" Error="@_errorCliente" @onclick="@(() => _errorCliente = false)"
+                                @bind-Value="proyectoDTO.IdClienteNavigation" For="@(() => proyectoDTO.IdClienteNavigation)"
+                                SearchFunc="@SearchClientes" ToStringFunc="@(u=> u==null?null : $"{u.Nombre}")">
                                 <NoItemsTemplate>
                                     <MudText Align="Align.Center" Class="px-4 py-1">
                                         No se encontraron usuarios
@@ -131,7 +133,7 @@
 
                         <MudGrid>
                             <MudItem xs="6">
-                                <MudAutocomplete T="UsuarioDTO" Label="Usuario" @bind-Value="proyectoDTO.IdUsuarioNavigation" For="@(() => proyectoDTO.IdUsuarioNavigation)"
+                                <MudAutocomplete T="UsuarioDTO" Label="Usuario" Error="@_errorUsuario" @onclick="@(() => _errorUsuario = false)" @bind-Value="proyectoDTO.IdUsuarioNavigation" For="@(() => proyectoDTO.IdUsuarioNavigation)"
                                                  Disabled="@_loader"
                                                  SearchFunc="@SearchUsuarios" ToStringFunc="@(u=> u==null?null : $"{u.Nombre} {u.Apellido} ({(u.IdRolNavigation?.Nombre != null ? u.IdRolNavigation?.Nombre : "Sin Rol")})")">
                                     <NoItemsTemplate>
@@ -151,7 +153,7 @@
                             </MudItem>
 
                             <MudItem xs="6">
-                                <MudAutocomplete T="ClienteDTO" Label="Cliente" @bind-Value="proyectoDTO.IdClienteNavigation" For="@(() => proyectoDTO.IdClienteNavigation)"
+                                <MudAutocomplete T="ClienteDTO" Label="Cliente" Error="@_errorCliente" @onclick="@(() => _errorCliente = false)" @bind-Value="proyectoDTO.IdClienteNavigation" For="@(() => proyectoDTO.IdClienteNavigation)"
                                                  Disabled="@_loader"
                                                  SearchFunc="@SearchClientes" ToStringFunc="@(c=> c==null?null : $"{c.Nombre}")">
                                     <NoItemsTemplate>
@@ -199,15 +201,6 @@
     </EditForm>
 }
 
-@if (Action.ToLower().Contains("eliminar"))
-{
-    
-}
-
-@* <MultiSelectAutoComplete T="TestItem" @bind-Values="SelectedGrupos"
-                         SearchFunc="MySearchFunc"
-                         GetIDFunc="c => c.Id" GetNameFunc="c => c.DisplayName" /> *@
-
 @code{
     private ProyectoDTO proyectoDTO = new ProyectoDTO();
 
@@ -219,6 +212,9 @@
     private bool _processing = false;
 
     private bool _loader = false;
+
+    private bool _errorUsuario = false;
+    private bool _errorCliente = false;
 
     private List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
     private List<ClienteDTO> listaClientes = new List<ClienteDTO>();
@@ -274,10 +270,6 @@
                 }
             }
         }
-        else if (Action.Contains("eliminar"))
-        {
-            variable = Action;
-        }
 
         base.OnInitialized();
     }
@@ -285,7 +277,6 @@
 
     void OnSubmitProyecto(EditContext editContext)
     {
-
         if (proyectoDTO.IdUsuarioNavigation != null && proyectoDTO.IdClienteNavigation != null)
         {
             proyectoDTO.IdUsuario = proyectoDTO.IdUsuarioNavigation.IdUsuario;
@@ -299,12 +290,18 @@
             }
             else
             {
-                Snackbar.Add("Chequee todos los campos", Severity.Warning);
+                Snackbar.Add("Chequeé todos los campos", Severity.Warning);
             }
         }
-        else
+        else if(proyectoDTO.IdUsuarioNavigation == null)
         {
-            proyectoDTO.IdUsuario = null; // O cualquier otro valor predeterminado que desees
+            _errorUsuario = true;
+            Snackbar.Add("Chequeé el campo de Usuario", Severity.Warning);
+        }
+        else if (proyectoDTO.IdClienteNavigation == null)
+        {
+            _errorCliente = true;
+            Snackbar.Add("Chequeé el campo de Cliente", Severity.Warning);
         }
     }
 
