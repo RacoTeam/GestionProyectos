@@ -1,0 +1,36 @@
+﻿@page "/pdf"
+@using GestionProyectos.Client.Services;
+@using iText.Kernel.Pdf;
+@using iText.Layout;
+@using iText.Layout.Element;
+
+<h1>PDF Generator</h1>
+
+<p>Click the button below to generate a PDF document.</p>
+
+<button class="btn btn-primary" @onclick="GeneratePdf">Generate PDF</button>
+
+@if (!string.IsNullOrEmpty(pdfPath))
+{
+    <p>Click the link below to download the PDF document.</p>
+    <a href="@pdfPath" download>Download PDF</a>
+}
+
+@code {
+    private string pdfPath;
+
+
+
+    private void GeneratePdf()
+    {
+        string fileName = "example.pdf";
+        string title = "Example PDF Document";
+        string body = "This is an example PDF document generated using iTextSharp.";
+
+        PdfGenerator.GeneratePdf(fileName, title, body);
+        pdfPath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+
+        using var document = new Document(new PdfDocument(new PdfWriter("helloworld-pdf.pdf")));
+        document.Add(new Paragraph("Hello World!"));
+    }
+}
