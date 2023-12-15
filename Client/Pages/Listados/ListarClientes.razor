@@ -1,6 +1,9 @@
 ﻿@page "/Clientes"
 <PageTitle>Listado de Usuarios</PageTitle>
 
+@using GestionProyectos.Client.Extensions
+@attribute [DynamicNavMenu("Clientes", GroupTitle = "Gestión de Proyectos")]
+
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
@@ -83,7 +86,6 @@
         {
             Console.WriteLine(ex.Message);
         }
-        
     }
 
     private bool FilterFunc(ClienteDTO ClienteDTO)

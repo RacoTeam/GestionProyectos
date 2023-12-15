@@ -87,7 +87,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ProyectoDTOs = await _proyectoServicio.ListarProyectos();
+        try
+        {
+            ProyectoDTOs = await _proyectoServicio.ListarProyectos();
+        }
+        catch
+        {
+            Snackbar.Add("No se logró obtener los proyectos", Severity.Error);
+        }
     }
 
     private bool FilterFunc(ProyectoDTO proyectoDTO)

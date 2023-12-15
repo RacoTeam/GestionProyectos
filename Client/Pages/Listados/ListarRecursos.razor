@@ -1,6 +1,9 @@
 ﻿@page "/Recursos"
 <PageTitle>Listado de Recursos</PageTitle>
 
+@using GestionProyectos.Client.Extensions
+@attribute [DynamicNavMenu("Recursos", GroupTitle = "Gestión de Proyectos")]
+
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 

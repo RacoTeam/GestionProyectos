@@ -1,6 +1,9 @@
 ﻿@page "/Grupos"
 <PageTitle>Listado de Grupos</PageTitle>
 
+@using GestionProyectos.Client.Extensions
+@attribute [DynamicNavMenu("Grupos", GroupTitle = "Gestión de Usuarios")]
+
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
