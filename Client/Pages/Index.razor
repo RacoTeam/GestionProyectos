@@ -1,19 +1,31 @@
 ﻿@page "/"
 <PageTitle>Index</PageTitle>
 
+@using Microsoft.AspNetCore.Components.Authorization;
+
 <MudPaper Elevation="3">
     <MudGrid Class="d-flex justify-center text-center">
         <MudItem>
             <h1 class="">¡BIENVENID@@!</h1>
-            <p class="">Facilita tu vida con nuestra Gestion de Proyectos</p>
+            <p class="">Gestiona tus proyectos facilmente con tu nuevo Sistema de Gestión de Proyectos</p>
+            <AuthorizeView>
+                <Authorized>
+                    @*Mostrar aca la dashboard*@
+                </Authorized>
+                
+                <NotAuthorized>
+                    <MudLink Href="./Login" Typo="Typo.body2" Class="mud-theme-primary">Iniciar Sesión</MudLink>
+            
+                <MudAlert Severity="Severity.Info">Por favor, te invito a iniciar sesión</MudAlert>
+                <MudButton Href="./Login"
+                           Variant="Variant.Filled"
+                           EndIcon="@Icons.Material.Filled.Login"
+                           Color="Color.Primary">
+                    INICIAR SESION
+                </MudButton>
 
-            <MudAlert Severity="Severity.Info">Por favor, te invito a iniciar sesion</MudAlert>
-            <MudButton Href="./Login"
-                       Variant="Variant.Filled"
-                       EndIcon="@Icons.Material.Filled.Login"
-                       Color="Color.Primary">
-                INICIAR SESION
-            </MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
         </MudItem>
     </MudGrid>
 </MudPaper>
