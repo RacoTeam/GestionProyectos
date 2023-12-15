@@ -218,7 +218,7 @@ namespace GestionProyectos.Server.Controllers
 
         [HttpDelete]
         [Route("soft/{idProyecto}")]
-        public async Task<IActionResult> EliminarLogicoProyecto(int idProyecto)
+        public async Task<IActionResult> EliminadoLogicoProyecto(int idProyecto)
         {
             var responseApi = new ResponseAPI<int>();
 
