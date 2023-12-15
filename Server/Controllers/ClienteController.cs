@@ -47,6 +47,8 @@ namespace GestionProyectos.Server.Controllers
             return Ok(responseApi);
         }
 
+
+
         [HttpGet]
         [Route("{idCliente}")]
         public async Task<ActionResult> ObtenerCliente(int idCliente)
