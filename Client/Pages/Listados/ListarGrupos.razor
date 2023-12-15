@@ -41,13 +41,12 @@
         <col/>
         <col/>
         <col style="width:50px;" />
-        <col style="width:50px;" />
     </ColGroup>
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<GrupoDTO, object>(x=>x.IdGrupo)">ID</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<GrupoDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
         <MudTh>Usuarios en grupo</MudTh>
-        <MudTh></MudTh>
+        <MudTh>Acciones</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="IdGrupo">@context.IdGrupo</MudTd>
@@ -77,8 +76,10 @@
                 <span>No hay datos de usuarios</span>
             }
         </MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarGrupo(context.IdGrupo)" /></MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarGrupo(context.IdGrupo)" /></MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarGrupo(context.IdGrupo)" />
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarGrupo(context.IdGrupo)" />
+        </MudTd>
     </RowTemplate>
 
     <PagerContent>

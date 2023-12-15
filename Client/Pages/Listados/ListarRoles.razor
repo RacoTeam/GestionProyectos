@@ -39,18 +39,19 @@
         <col style="width:50px;" />
         <col/>
         <col style="width:50px;" />
-        <col style="width:50px;" />
     </ColGroup>
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<RolDTO, object>(x=>x.IdRol)">ID</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<RolDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
-        <MudTh></MudTh>
+        <MudTh>Acciones</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="ID">@context.IdRol</MudTd>
         <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarRol(context.IdRol)" /></MudTd>
-        <MudTd><MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarRol(context.IdRol)" /></MudTd>
+        <MudTd>
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarRol(context.IdRol)" />
+            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarRol(context.IdRol)" />
+        </MudTd>
     </RowTemplate>
 
     <PagerContent>
