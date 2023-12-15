@@ -19,15 +19,15 @@
 <EditForm Model="@inicioSesion" OnValidSubmit="OnValidSubmit" OnInvalidSubmit="OnInvalidSubmit" FormName="LoginForm">
 <DataAnnotationsValidator/>
     <MudGrid Class="justify-center">
-        <MudItem xs="12">
+        <MudItem xs="12" sm="7">
             <MudCard>
                 <MudCardContent>
                     <MudTextField T="string" Label="Usuario" @bind-Value="inicioSesion.Usuario" For="@(() => inicioSesion.Usuario)" />
                     <MudTextField T="string" Label="Contraseña" @bind-Value="inicioSesion.Clave" For="@(() => inicioSesion.Clave)"
-                                    InputType="InputType.Password"  />
+                                  InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password" />
                 </MudCardContent>
                 <MudCardActions>
-                    <MudCheckBox T="bool"  Label="Recordarme" />
+                    <MudCheckBox T="bool"  Label="Recordarme" @bind-Value="recordar"/>
                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Iniciar Sesion</MudButton>
                 </MudCardActions>
                 @* @if (success)
@@ -50,6 +50,7 @@
     private SesionDTO sesionUsuarioDTO = new SesionDTO();
 
     bool success = false;
+    bool recordar = false;
 
     public class InicioSesion
     {
@@ -58,6 +59,28 @@
 
         [Required(ErrorMessage = "El campo Contraseña es requerido")]
         public string Clave { get; set; } = "";
+    }
+
+    public string Password { get; set; } = "superstrong123";
+
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void ButtonTestclick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
     }
 
     private async void OnValidSubmit(EditContext context)

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 
-namespace GestionProyectos.Client.Shared
+namespace GestionProyectos.Client.Shared.DynamicNavMenu
 {
     /// <summary>
     /// This class is the code-behind for the <see cref="DynamicNavMenu"/> component.

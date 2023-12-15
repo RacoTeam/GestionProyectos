@@ -5,30 +5,74 @@
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 
-@using CG.Blazor.Forms
 @using CurrieTechnologies.Razor.SweetAlert2;
 @using GestionProyectos.Shared.Models;
-@using Microsoft.AspNetCore.Components.Authorization
-@using GestionProyectos.Client.Extensions;
 @using GestionProyectos.Client.Services.Contrato;
 
 @inject IProyectoService _proyectoServicio;
-@inject NavigationManager _navServicio;
+@inject IClienteService _clienteServicio;
+@inject IUsuarioService _usuarioServicio;
+@inject NavigationManager _navManager;
 @inject ISnackbar Snackbar;
-@inject AuthenticationStateProvider autenticacionProvider;
-@inject SweetAlertService Swal;
-@* 
-if varAgregar then
-<DynamicForm Model="@proyectoDTO" OnValidSubmit="Agregar" />
 
-if modificar then
-<DynamicForm Model="@proyectoDTO" OnValidSubmit="Agregar" /> *@
+@using GestionProyectos.Client.Shared.MultiSelectAutoComplete;
 
-<div>
-    @variable
-</div>
+@if (Action.Contains("agregar"))
+{
+    <EditForm Model="@proyectoDTO" OnValidSubmit="Agregar" OnInvalidSubmit="@(() => Snackbar.Add("Chequee todos los campos", Severity.Warning))" FormName="AgregarProyectoForm">
+    <DataAnnotationsValidator/>
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudPaper Class="pa-4">
+                <MudTextField T="string" Label="Nombre"  @bind-Value="proyectoDTO.Nombre" For="@(() => proyectoDTO.Nombre)" Variant="Variant.Outlined" />
+                <MudTextField T="string" Label="Descripción" @bind-Value="proyectoDTO.Descripcion" For="@(() => proyectoDTO.Descripcion)" Variant="Variant.Outlined" Lines="3" />
 
-<DynamicForm Model="@proyectoDTO" OnValidSubmit="OnValidSubmit" />
+                <MudDatePicker Label="Fecha de Inicio" Editable="true" @bind-Date="proyectoDTO.FechaInicio" For="@(() => proyectoDTO.FechaInicio)" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
+                <MudDatePicker Label="Fecha de Finalización" Editable="true" @bind-Date="proyectoDTO.FechaFin" For="@(() => proyectoDTO.FechaFin)" Variant="Variant.Outlined" Placeholder="Selecciona una fecha" DisableToolbar="true" ShowWeekNumbers="true" />
+
+                <MudItem xs="12" sm="6" md="4">
+                        <MudAutocomplete T="UsuarioDTO" Label="Usuario" @bind-Value="proyectoDTO.IdUsuarioNavigation" For="@(() => proyectoDTO.IdUsuarioNavigation)"
+                                         SearchFunc="@SearchUsuarios" ToStringFunc="@(u=> u==null?null : $"{u.Nombre} {u.Apellido} ({u.IdRolNavigation.Nombre})")">
+                        <NoItemsTemplate>
+                            <MudText Align="Align.Center" Class="px-4 py-1">
+                                No se encontraron usuarios
+                            </MudText>
+                            <div class="pa-2">
+                                <MudButton Href="/Usuarios/agregar/0" Color="Color.Primary">Añadir Usuario</MudButton>
+                            </div>
+                        </NoItemsTemplate>
+                        <AfterItemsTemplate>
+                            <div class="pa-2">
+                                <MudButton Href="/Usuarios/agregar/0" Color="Color.Primary">Añadir Usuario</MudButton>
+                            </div>
+                        </AfterItemsTemplate>
+                    </MudAutocomplete>
+                </MudItem>
+
+                <MudTextField T="int?" Label="Id Cliente" Required="true" RequiredError="Id Cliente requerido!" @bind-Value="@proyectoDTO.IdCliente" />
+                <MudTextField T="int?" Label="Id Responsabl" Required="true" RequiredError="Id Responsable requerido!" @bind-Value="@proyectoDTO.IdUsuario" />
+
+                <MudCardActions>
+                     <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Error" Class="ml-auto">Cancelar</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Agregar Proyecto</MudButton>
+                </MudCardActions>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    </EditForm>
+}
+
+@if (Action.Contains("modificar")){
+    
+}
+
+@if (Action.Contains("modificar")){
+
+}
+
+@* <MultiSelectAutoComplete T="TestItem" @bind-Values="SelectedGrupos"
+                         SearchFunc="MySearchFunc"
+                         GetIDFunc="c => c.Id" GetNameFunc="c => c.DisplayName" /> *@
 
 @code{
     private ProyectoDTO proyectoDTO = new ProyectoDTO();
@@ -39,22 +83,95 @@ if modificar then
 
     string variable = "";
 
-    protected override void OnInitialized()
+    // public IEnumerable<GrupoDTO> Grupos = new List<GrupoDTO>();
+
+    // public IEnumerable<GrupoDTO> SelectedGrupos = new List<GrupoDTO>();
+
+    // public async Task<IEnumerable<GrupoDTO>> MySearchFunc(string search)
+    // {
+    //     if (string.IsNullOrEmpty(search))
+    //     {
+    //         return Items;
+    //     }
+    //     return await Task.FromResult(Items.Where(x => x.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)));
+    // }
+
+    private List<ClienteDTO> listaClientes = new List<ClienteDTO>();
+    private List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
+
+    private async Task<IEnumerable<UsuarioDTO>> SearchUsuarios(string value)
     {
-        if (Action.Contains("agregar"))
+        await Task.Delay(5);
+        return string.IsNullOrEmpty(value) ? listaUsuarios : listaUsuarios.Where(u => u.Nombre.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    protected async override void OnInitialized()
+    {
+        if (Action.Contains("agregar") || Action.Contains("modificar"))
         {
-            variable = Action;
+            try
+            {
+                listaUsuarios = await _usuarioServicio.ListarUsuarios();
+            }
+            catch
+            {
+                Snackbar.Add("No se pudieron obtener usuarios", Severity.Error);
+            }
+
+            try
+            {
+                listaClientes = await _clienteServicio.ListarClientes();
+            }
+            catch
+            {
+                Snackbar.Add("No se pudieron obtener clientes", Severity.Error);
+            }
         }
         else if (Action.Contains("eliminar"))
         {
             variable = Action;
         }
-        else if (Action.Contains("modificar"))
-        {
-            variable = Action;
-        }
 
         base.OnInitialized();
+    }
+
+    private async void Agregar()
+    {
+        try
+        {
+            proyectoDTO.IdUsuario = proyectoDTO.IdUsuarioNavigation.IdUsuario;
+            proyectoDTO.IdCliente = proyectoDTO.IdClienteNavigation.IdCliente;
+            var response = await _proyectoServicio.AgregarProyecto(proyectoDTO);
+        }
+        catch
+        {
+            Snackbar.Add("No se pudo agregar el proyecto", Severity.Error);
+        }
+    }
+
+    private async void Modificar()
+    {
+        try
+        {
+            // var response = await _proyectoServicio.ModificarProyecto(proyectoDTO);
+            Console.WriteLine("Se intenta modificar xd");
+        }
+        catch
+        {
+            Snackbar.Add("No se pudo agregar el proyecto", Severity.Error);
+        }
+    }
+
+    private async void Eliminar()
+    {
+        try
+        {
+            var response = await _proyectoServicio.EliminarProyecto(proyectoDTO.IdProyecto);
+        }
+        catch
+        {
+            Snackbar.Add("No se pudo agregar el proyecto", Severity.Error);
+        }
     }
 
     /*private MyModel model = new MyModel();
