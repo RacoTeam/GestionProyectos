@@ -17,6 +17,7 @@
 @inject HttpClient httpClient
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject IJSRuntime jsRunTime
 
 @inject NavigationManager _navManager
 
@@ -117,6 +118,8 @@
          </MudTable>
 
          <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Print">Generar PDF</MudButton>
  }
  else
     {
@@ -203,10 +206,13 @@
                 Snackbar.Add(ex.Message, Severity.Error);
             }
         }
-        
+
 
     }
+    private void Print()
+    {
+        jsRunTime.InvokeVoidAsync("Print");
+    }
 
-  
   
 }
