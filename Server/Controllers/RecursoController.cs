@@ -91,6 +91,8 @@ namespace GestionProyectos.Server.Controllers
         }
 
 
+
+
         [HttpPost]
         public async Task<ActionResult> AgregarRecurso(RecursoDTO recursoDTO)
         {
@@ -119,6 +121,48 @@ namespace GestionProyectos.Server.Controllers
             {
                 responseApi.EsCorrecto = false;
                 responseApi.Mensaje = ex.Message;
+            }
+
+            return Ok(responseApi);
+        }
+
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> ModificarRecurso(int id, RecursoDTO recursoDTO)
+        {
+            var responseApi = new ResponseAPI<int>();
+
+            try
+            {
+                var dbRecurso = await _dbContext.Recursos
+                    .Include(r => r.IdTareaNavigation)
+                    .Where(r => r.IdRecurso == id)
+                    .FirstOrDefaultAsync();
+
+                if (dbRecurso == null)
+                {
+                    responseApi.EsCorrecto = false;
+                    responseApi.Mensaje = "Recurso no encontrado";
+                    return NotFound(responseApi);
+                }
+
+                // Update properties of dbRecurso with values from recursoDTO
+                _mapper.Map(recursoDTO, dbRecurso);
+
+                // Clear related collections to avoid unintended updates
+                dbRecurso.IdTareaNavigation = null;
+
+                _dbContext.Entry(dbRecurso).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+
+                responseApi.EsCorrecto = true;
+                responseApi.Valor = dbRecurso.IdRecurso;
+            }
+            catch (Exception ex)
+            {
+                responseApi.EsCorrecto = false;
+                responseApi.Mensaje = ex.Message;
+                return StatusCode(500, responseApi); // Internal Server Error
             }
 
             return Ok(responseApi);
