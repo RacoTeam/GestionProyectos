@@ -26,14 +26,14 @@
 
 @if (proyectoDetalle != null)
 {
-        <MudCard Class="mb-2">
-            <MudCardHeader>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.h3">Proyecto - @proyectoDetalle.Nombre</MudText>
+    <MudCard Class="mb-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h3">Proyecto - @proyectoDetalle.Nombre</MudText>
                 </CardHeaderContent>
                 <CardHeaderActions>
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Default" Href=@($"/Proyectos/modificar/{IdProyecto}") />
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="DeleteUser" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Default" Href=@($"/Proyectos/modificar/{IdProyecto}") />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="DeleteUser" />
                 </CardHeaderActions>
             </MudCardHeader>
             <MudCardContent>
@@ -41,20 +41,21 @@
                     <MudItem xs="6">
                         <MudTextField T="string" Label="Descripcion" Variant="Variant.Outlined" Text="@proyectoDetalle.Descripcion" Lines="9" ReadOnly="true" />
                     </MudItem>
-                    <MudItem xs="6">             
+                    <MudItem xs="6">
                         <MudText Typo="Typo.h6">Responsable</MudText>
                         <MudText>
-                        @if (proyectoDetalle.IdUsuarioNavigation != null)
+                            @if (proyectoDetalle.IdUsuarioNavigation != null)
                         {
-                            @($"{proyectoDetalle.IdUsuarioNavigation.Nombre} {proyectoDetalle.IdUsuarioNavigation.Apellido}");
+                            @($"{proyectoDetalle.IdUsuarioNavigation.Nombre} {proyectoDetalle.IdUsuarioNavigation.Apellido}")
+                            ;
                         }
                         else
                         {
                             <span>No asignado</span>
                         }
-                        </MudText>
-                        <MudText Typo="Typo.h6">Fecha de Inicio</MudText>
-                        <MudText>@proyectoDetalle.FechaInicio</MudText>
+                    </MudText>
+                    <MudText Typo="Typo.h6">Fecha de Inicio</MudText>
+                    <MudText>@proyectoDetalle.FechaInicio</MudText>
                         <MudText Typo="Typo.h6">Fecha de Finalizacion</MudText>
                         <MudText>@proyectoDetalle.FechaInicio</MudText>
                     </MudItem>
@@ -65,40 +66,40 @@
 
 
 
-            <MudTable Items="@tareasProyecto" Dense="@dense" Hover="@hover" ReadOnly="false" CanCancelEdit="@canCancelEdit" Filter="new Func<TareaDTO,bool>(FilterFunc)"
-            @bind-SelectedItem="selectedItem1" SortLabel="Ordenar por" EditTrigger="TableEditTrigger.EditButton">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">Listado de Tareas</MudText>
+    <MudTable Items="@tareasProyecto" Dense="@dense" Hover="@hover" ReadOnly="false" CanCancelEdit="@canCancelEdit" Filter="new Func<TareaDTO,bool>(FilterFunc)"
+              @bind-SelectedItem="selectedItem1" SortLabel="Ordenar por" EditTrigger="TableEditTrigger.EditButton">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Listado de Tareas</MudText>
             <MudIconButton Href="@($"/Tareas/agregar/proyecto/{IdProyecto}")"
-                               Variant="Variant.Filled"
-                               Icon="@Icons.Material.Filled.AddCircle"
-                               Color="Color.Primary" Class="ms-2"></MudIconButton>
-                <MudSpacer />
-                <MudTextField @bind-Value="searchString" Placeholder="Buscar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-            </ToolBarContent>
-            <ColGroup>
-                <col style="width:50px;" />
-                <col style="width:80px;" />
-                <col style="width:50%;" />
-                <col style="width:50px;" />
-                <col />
-                <col />
-                <col />
-                <col style="width:50px;" />
-                <col style="width:50px;" />
-            </ColGroup>
-            <HeaderContent>
-                <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<TareaDTO, object>(x=>x.IdTarea)">ID</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Descripcion)">Descripción</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Avance)">Avance</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaInicio)">Fecha de Inicio</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaFin)">Fecha de Fin</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.IdProyecto)">Id Proyecto</MudTableSortLabel></MudTh>
-                <MudTh>Acciones</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="ID">@context.IdTarea</MudTd>
+                           Variant="Variant.Filled"
+                           Icon="@Icons.Material.Filled.AddCircle"
+                           Color="Color.Primary" Class="ms-2"></MudIconButton>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Buscar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <ColGroup>
+            <col style="width:50px;" />
+            <col style="width:80px;" />
+            <col style="width:50%;" />
+            <col style="width:50px;" />
+            <col />
+            <col />
+            <col />
+            <col style="width:50px;" />
+            <col style="width:50px;" />
+        </ColGroup>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<TareaDTO, object>(x=>x.IdTarea)">ID</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Descripcion)">Descripción</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Avance)">Avance</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaInicio)">Fecha de Inicio</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaFin)">Fecha de Fin</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.IdProyecto)">Id Proyecto</MudTableSortLabel></MudTh>
+            <MudTh>Acciones</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="ID">@context.IdTarea</MudTd>
                 <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
                 <MudTd DataLabel="Descripción">@context.Descripcion</MudTd>
                 <MudTd DataLabel="Avance">@context.Avance</MudTd>
@@ -109,22 +110,28 @@
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="() => ModificarTarea(context.IdTarea)" />
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0" OnClick="() => EliminarTarea(context.IdTarea)" />
                 </MudTd>
- 
+
             </RowTemplate>
 
             <PagerContent>
                 <MudTablePager />
             </PagerContent>
-         </MudTable>
+        </MudTable>
 
-         <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+    <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
 
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Print">Generar PDF</MudButton>
- }
- else
-    {
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="mb-2"
+               OnClick="@( () => CalcularPresupuesto(proyectoDetalle) )">
+        Calcular Presupuesto
+    </MudButton>
+}
+else
+{
     <MudText Typo="Typo.h3">Cargando proyecto...</MudText>
-    }
+}
 
 @code {
     private List<string> editEvents = new();
@@ -201,7 +208,7 @@
             {
                 var response = await _proyectoServicio.EliminarProyecto(IdProyecto);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Snackbar.Add(ex.Message, Severity.Error);
             }
@@ -214,5 +221,37 @@
         jsRunTime.InvokeVoidAsync("Print");
     }
 
-  
+    private void CalcularPresupuesto(ProyectoDTO proyecto)
+    {
+        if (proyecto != null && proyecto.Tareas != null)
+        {
+            double presupuestoTotal = 0;
+
+            foreach (var tarea in proyecto.Tareas)
+            {
+                if (tarea.Recursos != null)
+                {
+                    double costoTarea = 0;
+
+                    foreach (var recurso in tarea.Recursos)
+                    {
+                        if (recurso.CostoDia != null)
+                        {
+                            costoTarea += recurso.CostoDia.Value;
+                        }
+                    }
+
+                    presupuestoTotal += costoTarea;
+                }
+            }
+
+            // Aquí puedes mostrar el presupuesto total como prefieras, por ejemplo:
+            Snackbar.Add($"Presupuesto Total del Proyecto '{proyecto.Nombre}': {presupuestoTotal:C}", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("El proyecto seleccionado no tiene tareas asignadas o es nulo.", Severity.Warning);
+        }
+    }
+
 }
