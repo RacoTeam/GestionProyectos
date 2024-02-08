@@ -31,9 +31,10 @@
                     <MudText Typo="Typo.h3">Tareas Superpuestas</MudText>
                 </CardHeaderContent>
             </MudCardHeader>
+            <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Print">Generar PDF</MudButton>
+            </MudCardActions>
         </MudCard>
-
-
 
         <MudTable Items="@tareasSuperpuestas" Dense="@dense" Hover="@hover" ReadOnly="false" CanCancelEdit="@canCancelEdit" Filter="new Func<TareaDTO,bool>(FilterFunc)"
             @bind-SelectedItem="selectedItem1" SortLabel="Ordenar por" EditTrigger="TableEditTrigger.EditButton">
@@ -66,6 +67,7 @@
                 <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaInicio)">Fecha de Inicio</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaFin)">Fecha de Fin</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.IdProyecto)">Id Proyecto</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.IdProyecto)">Id Proyecto</MudTableSortLabel></MudTh>
                 <MudTh>Acciones</MudTh>
             </HeaderContent>
             <RowTemplate>
@@ -122,8 +124,6 @@
          </MudTable>
 
          <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
-
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Print">Generar PDF</MudButton>
 
 
 @code {

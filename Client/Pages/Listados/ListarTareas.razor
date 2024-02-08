@@ -94,6 +94,7 @@
             <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Nombre)">Nombre</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Descripcion)">Descripción</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.Avance)">Avance</MudTableSortLabel></MudTh>
+            @* <MudTh>Estado</MudTh> *@
             <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaInicio)">Fecha de Inicio</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.FechaFin)">Fecha de Fin</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<TareaDTO, object>(x=>x.IdProyecto)">Id Proyecto</MudTableSortLabel></MudTh>
@@ -104,6 +105,11 @@
             <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
             <MudTd DataLabel="Descripción">@context.Descripcion</MudTd>
             <MudTd DataLabel="Avance">@context.Avance</MudTd>
+@*             <MudTd DataLabel="Estado">
+                @if{
+                    
+                }
+            </MudTd> *@
             <MudTd DataLabel="Fecha de Inicio">@context.FechaInicio</MudTd>
             <MudTd DataLabel="Fecha de Fin">@context.FechaFin</MudTd>
             <MudTd DataLabel="IdProyecto">@context.IdProyecto</MudTd>
